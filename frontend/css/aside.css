@@ -151,11 +151,13 @@ height: 1rem;
 @media screen and (min-width: 580px) {
     aside {
         border-right: 1px solid var(--stroke-color-primary);
+        background-color: var(--background-color-secondary);
     }
 
     aside.aside-expanded {
         position: sticky;
         width: 300px;
+        background-color: var(--background-color-secondary);
     }
 }
 
