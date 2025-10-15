@@ -39,10 +39,14 @@ height: 1rem;
 #chat-list-container {
     padding-top: var(--spacing-md);
     width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xss);
 }
 
 #chat-list-header {
     color: var(--color-text-muted);
+
 }
 
 #chat-list {
@@ -104,6 +108,10 @@ height: 1rem;
     -moz-transition: .2s ease-in-out;
     -o-transition: .2s ease-in-out;
     transition: .2s ease-in-out;
+}
+
+#menu-button-image:hover span {
+    background: var(--color-text-active);
 }
 
 #menu-button-image span:nth-child(1) {
