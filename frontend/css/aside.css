@@ -56,15 +56,13 @@ height: 1rem;
     align-items: center;
     justify-content: space-between;
     padding-right: var(--spacing-xss);
-    transition: padding 0.2s;
+    padding-left: var(--spacing-xss);
 }
 
 .chat-item:hover {
-    background-color: var(--background-color-secondary);
+    background-color: var(--background-color-tertiary);
     cursor: pointer;
     border-radius: 9px;
-    padding-left: var(--spacing-xss);
-    transition: padding 0.2s;
 }
 
 .chat-item button {
