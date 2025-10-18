@@ -1,16 +1,3 @@
-#landing-page {
-    width: 100%;
-}
-
-main {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    padding-top: var(--spacing-vlg);
-    margin-left: -4rem; /* Compensate for aside width */
-}
-
 #search-bar-container {
     display: flex;
     flex-direction: column;
@@ -23,6 +10,7 @@ main {
     position: fixed;
     bottom: var(--spacing-md);
     flex-direction: row;
+    align-items: center;
     background-color: var(--background-color-secondary);
     border: 1px solid var(--stroke-color-primary);
     border-radius: 4rem;

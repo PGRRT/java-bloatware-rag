@@ -157,7 +157,14 @@ button > img {
     }
 }
 
-
+main {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    padding-top: var(--spacing-vlg);
+    margin-left: -4rem; /* Compensate for aside width */
+}
 
 
 /* Header */
