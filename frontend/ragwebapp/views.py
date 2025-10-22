@@ -1,3 +1,4 @@
+import logging
 from typing import List
 
 import httpx
@@ -5,11 +6,9 @@ from django import forms
 from django.core.files.uploadedfile import UploadedFile
 from django.http import HttpResponse, HttpRequest, JsonResponse
 from django.shortcuts import render, redirect
-
-# Create your views here.
-
-
 from .models import ChatConversation, ChatMessage
+
+logger = logging.getLogger(__name__)
 
 
 def index(request: HttpRequest) -> HttpResponse:
@@ -30,12 +29,7 @@ class MultipleFileField(forms.FileField):
 
     def clean(self, data, initial=None) -> list | list[bool]:
         single_file_clean = super().clean
-
-        if not data:
-            return []
-
         if isinstance(data, (list, tuple)):
-            # TODO :: Submitted files are not accepted
             result = [single_file_clean(d, initial) for d in data]
         else:
             result = [single_file_clean(data, initial)]
@@ -43,38 +37,37 @@ class MultipleFileField(forms.FileField):
 
 
 class MessageForm(forms.Form):
-    message: forms.CharField = forms.CharField(empty_value=None, required=False)
-    attachments: MultipleFileField = MultipleFileField(required=False)
+    message = forms.CharField(required=False)
+    attachments = MultipleFileField(required=False)
 
 
 def chat(request: HttpRequest, chat_id: int) -> HttpResponse | JsonResponse:
     if request.method == "POST":
-        print(request.FILES)
-
         form = MessageForm(request.POST, request.FILES)
+        form.full_clean()
 
-        if not form.is_valid():
-            # TODO :: Error code
-            pass
+        logger.info("Cleaned data:", form.cleaned_data)
 
-        message: str = form.cleaned_data.get("message")
+        message: str | None = form.cleaned_data.get("message")
         attachments: List[UploadedFile] | None = form.cleaned_data.get("attachments")
-
-        print(form.cleaned_data)
 
         # TODO :: API URL from config
 
         with httpx.Client() as client:
             if attachments:
+                logger.info(f"Sending {len(attachments)} to the API")
+
                 files = [
                     ("files", (file.name, file, file.content_type))
                     for file in attachments
                 ]
-                print(files)
+
                 client.post(f"http://localhost:8081/upload/{chat_id}", files=files)
+
             if message:
+                logger.info("Sending query to the API")
                 response = client.post(
-                    f"http://localhost:8081/query/{chat_id}", json={"message": message}
+                    f"http://localhost:8081/query/{chat_id}", json={"query": message}
                 )
 
                 query = ChatMessage(

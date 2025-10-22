@@ -13,7 +13,8 @@ repos:
     hooks:
       - id: mypy
         name: mypy Static Checker
-        args: [--config-file, ./api/pyproject.toml]
+        args: [--config-file, ./api/pyproject.toml, ./api]
+        pass_filenames: false
         additional_dependencies:
           - fastapi
           - django
