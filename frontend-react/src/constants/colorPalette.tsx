@@ -7,6 +7,8 @@ export const colorPalette = {
   accent: "#999999",
   backgroundSecondary: "#111111",
   backgroundTertiary: "#3C3C3C",
+
+  backgroundBright: "#202123",
   strokePrimary: "#3C3C3C",
   // legacy convenience colors
   white: "#FFFFFF",

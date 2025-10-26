@@ -2,10 +2,12 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import { StoreProvider } from "@/redux/StoreProvider";
-import "./styles/main.scss";
 import { RouterProvider } from "react-router-dom";
 import { router } from "@/router.tsx";
 import { MantineProvider } from "@mantine/core";
+
+import '@mantine/core/styles.css';
+import "./styles/main.scss";
 
 const container = document.getElementById("root");
 
