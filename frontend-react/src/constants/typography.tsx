@@ -1,6 +1,14 @@
 import { css } from "@emotion/css";
 
 export const typography = {
+  textTitleTai: css`
+    font-family: "Tai Heritage Pro", serif;
+    font-weight: 400;
+    font-style: normal;
+  `,
+  textBold: css`
+    font-weight: 700;
+  `,
   textTitle: css`
     font-size: 64px;
     font-weight: 700;

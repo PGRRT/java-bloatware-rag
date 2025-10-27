@@ -8,6 +8,13 @@ $color-accent: #999999;
 $background-color-secondary: #111111;
 $background-color-tertiary: #3C3C3C;
 $stroke-color-primary: #3C3C3C;
+
+$padding-xss: 0.25rem;
+$padding-xs: 0.5rem;
+$padding-sm: 0.75rem;
+$padding-md: 1rem;
+$padding-lg: 1.25rem;
+
 $spacing-xss: 0.5rem;
 $spacing-xs: 0.75rem;
 $spacing-sm: 1rem;
@@ -15,8 +22,11 @@ $spacing-md: 1.5rem;
 $spacing-lg: 2rem;
 $spacing-vlg: 3rem;
 
-// $surface-hover: #ffffff26;
-
+$radius-xs: 0.3rem;
+$radius-sm: 0.6rem;
+$radius-md: 0.9rem;
+$radius-lg: 1.2rem;
+$radius-xl: 1.5rem;
 
 // Expose CSS custom properties for runtime usage (keeps compatibility with existing code)
 :root {
@@ -36,6 +46,16 @@ $spacing-vlg: 3rem;
   --spacing-md: #{$spacing-md};
   --spacing-lg: #{$spacing-lg};
   --spacing-vlg: #{$spacing-vlg};
+
+	--radius-xs: #{$radius-xs};
+	--radius-sm: #{$radius-sm};
+	--radius-md: #{$radius-md};
+	--radius-lg: #{$radius-lg};
+	--radius-xl: #{$radius-xl};
+
+	--padding-xss: #{$padding-xss};
+	--padding-xs: #{$padding-xs};
+	--padding-sm: #{$padding-sm};
+	--padding-md: #{$padding-md};
+	--padding-lg: #{$padding-lg};	
 }
-
-

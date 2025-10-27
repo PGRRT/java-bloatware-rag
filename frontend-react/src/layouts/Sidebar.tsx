@@ -21,8 +21,8 @@ const buttonsStyle = css`
 
   position: absolute;
   top: 0;
-  padding: ${styles.padding.small}px;
-  border-radius: ${styles.borderRadius.small}px;
+  padding: ${styles.padding.xs};
+  border-radius: ${styles.borderRadius.small};
 
   &:hover {
     background: ${colorPalette.backgroundTertiary} !important;
@@ -31,7 +31,7 @@ const buttonsStyle = css`
 
 export default function Sidebar() {
   const [expanded, setExpanded] = useState(false);
-  const sidebarWidth = expanded ? 240 : 70;
+  const sidebarWidth = expanded ? 280 : 70;
 
   const menuItems = [
     // to be added
@@ -58,6 +58,7 @@ export default function Sidebar() {
         `}
       >
         <div
+          onClick={() => setExpanded(!expanded)}
           aria-hidden={expanded}
           css={css`
             ${buttonsStyle}
@@ -66,6 +67,7 @@ export default function Sidebar() {
             transform: translateX(-50%);
             opacity: 1;
             pointer-events: auto;
+            cursor: pointer;
             ${expanded &&
             css`
               opacity: 0;
@@ -74,7 +76,6 @@ export default function Sidebar() {
           `}
         >
           <IconWrapper
-            onClick={() => setExpanded(!expanded)}
             size={24}
             Icon={TextAlignJustify}
             color={colorPalette.accent}
@@ -83,6 +84,7 @@ export default function Sidebar() {
         </div>
 
         <div
+          onClick={() => setExpanded(!expanded)}
           aria-hidden={!expanded}
           css={css`
             ${buttonsStyle}
@@ -92,6 +94,7 @@ export default function Sidebar() {
             opacity: 0;
 
             pointer-events: none;
+            cursor: pointer;
             ${expanded &&
             css`
               opacity: 1;
@@ -99,12 +102,7 @@ export default function Sidebar() {
             `}
           `}
         >
-          <IconWrapper
-            onClick={() => setExpanded(!expanded)}
-            size={26}
-            Icon={X}
-            color={colorPalette.accent}
-          />
+          <IconWrapper size={24} Icon={X} color={colorPalette.accent} />
         </div>
       </div>
 
