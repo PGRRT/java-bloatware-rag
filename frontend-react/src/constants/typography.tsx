@@ -1,6 +1,9 @@
 import { css } from "@emotion/css";
 
 export const typography = {
+  textBold: css`
+    font-weight: 700;
+  `,
   textTitle: css`
     font-size: 64px;
     font-weight: 700;

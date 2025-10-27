@@ -35,7 +35,7 @@ const SelectInput = ({
           ref={button}
           onClick={() => setOpen((prev) => !prev)}
           className={cx(
-            `${typography.textL}`,
+            `${typography.textM}`,
             css`
               display: flex;
               gap: 5px;
@@ -43,13 +43,14 @@ const SelectInput = ({
               height: 36px;
               cursor: pointer;
               font-weight: 500;
-              min-height: 34px;
+              height: 36px;
               color: ${colorPalette.text};
               background: transparent;
               overflow: hidden;
 
-              padding: 0 ${styles.padding.large}px;
-              border-radius: ${styles.borderRadius.small}px;
+              user-select: none;
+              padding: 0 ${styles.padding.medium};
+              border-radius: ${styles.borderRadius.medium};
               &:hover {
                 background: ${colorPalette.backgroundTertiary};
               }
@@ -79,6 +80,7 @@ const SelectInput = ({
                   text-align: left;
                   color: ${colorPalette.text};
                   padding: 8px 12px;
+                  border-radius: ${styles.borderRadius.small};
 
                   // not for last
                   &:not(:last-child) {

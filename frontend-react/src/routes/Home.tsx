@@ -8,7 +8,7 @@ export default function Home() {
   return (
     <ContentWrapper direction="row">
       <Sidebar />
-      <ContentWrapper width="100%" direction="column">
+      <ContentWrapper padding="1rem" width="100%" direction="column">
         <Navbar />
         <Chat />
       </ContentWrapper>
