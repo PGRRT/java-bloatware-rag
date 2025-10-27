@@ -1,4 +1,5 @@
-import pymupdf4llm
+from typing import Any
+import pymupdf4llm  # type: ignore
 from pymupdf import Document
 from multiprocessing import Pool, cpu_count
 import logging
@@ -26,11 +27,13 @@ def parse_to_markdown(document: Document) -> str:
     chunk_size = (total_pages + num_proc - 1) // num_proc
 
     for i in range(0, total_pages, chunk_size):
-        pages_list.append(pages[i:i + chunk_size])
+        pages_list.append(pages[i : i + chunk_size])
 
     # Use multiprocessing to parse the document
     with Pool(processes=num_proc) as pool:
-        results = pool.starmap(__parse_to_markdown, [(document_bytes, pages) for pages in pages_list])
+        results = pool.starmap(
+            __parse_to_markdown, [(document_bytes, pages) for pages in pages_list]
+        )
         parsed_document_to_markdown = "".join(results)
 
     logging.info(f"Parsed document to markdown: {document.name}")
@@ -38,7 +41,7 @@ def parse_to_markdown(document: Document) -> str:
     return parsed_document_to_markdown
 
 
-def __parse_to_markdown(document_bytes: bytes, pages: list) -> str:
+def __parse_to_markdown(document_bytes: bytes, pages: list[Any]) -> str:
     """
     Parse given pages of the document to markdown.
     :param document_bytes: Serialized document bytes
@@ -47,6 +50,9 @@ def __parse_to_markdown(document_bytes: bytes, pages: list) -> str:
     """
     # Reconstruct the document from bytes
     document = Document(stream=document_bytes, filetype="pdf")
-    markdown = pymupdf4llm.to_markdown(doc=document, pages=pages)
-    document.close()  # Close the document after processing
+    markdown: str = pymupdf4llm.to_markdown(doc=document, pages=pages)
+
+    # Close the document after processing
+    document.close()
+
     return markdown

@@ -1,10 +1,12 @@
-from pymilvus import MilvusClient, CollectionSchema, DataType
+from typing import Any
+from pymilvus import MilvusClient, CollectionSchema, DataType  # type: ignore
+from pymilvus.milvus_client import IndexParams  # type: ignore
 
 
 class RAGDatabase:
-    def __init__(self, embedding_dim=2):
-        self.client = MilvusClient("./milvus_database.db")
-        self.embedding_dim = embedding_dim
+    def __init__(self, embedding_dim: int = 2):
+        self.client: MilvusClient = MilvusClient("./milvus_database.db")
+        self.embedding_dim: int = embedding_dim
 
     def __create_collection(self, conversation_d: int) -> None:
         """
@@ -19,7 +21,11 @@ class RAGDatabase:
         if self.client.has_collection(collection_name):
             return
 
-        self.client.create_collection(collection_name, self.embedding_dim, schema=self.__create_schema(self.embedding_dim))
+        self.client.create_collection(
+            collection_name,
+            self.embedding_dim,
+            schema=self.__create_schema(self.embedding_dim),
+        )
         self.client.create_index(collection_name, index_params=self.__create_index())
 
     def __get_collection_name_by_id(self, conversation_id: int) -> str:
@@ -49,7 +55,7 @@ class RAGDatabase:
 
         return schema
 
-    def __create_index(self):
+    def __create_index(self) -> IndexParams:
         """
         This function creates an index for the embedding field in the collection.
 
@@ -81,7 +87,7 @@ class RAGDatabase:
         else:
             return
 
-    def insert_data(self, conversation_id: int, data: list):
+    def insert_data(self, conversation_id: int, data: list[Any]) -> None:
         """
         This function inserts data into the vector database. Collection will be created if it doesn't exist (for conversation_id).
 
@@ -95,7 +101,9 @@ class RAGDatabase:
         self.client.insert(collection_name, data=data)
         self.client.flush(collection_name)
 
-    def search(self, conversation_id: int, query_embedding: list):
+    def search(
+        self, conversation_id: int, query_embedding: list[int]
+    ) -> list[list[dict[Any, Any]]]:
         """
         This function searches for similar data in the vector database.
 
@@ -112,10 +120,15 @@ class RAGDatabase:
         }
 
         try:
-            results = self.client.search(collection_name, anns_field="embedding", data=query_embedding,
-                                         search_params=search_params,
-                                         limit=5, output_fields=["text"])
+            results = self.client.search(
+                collection_name,
+                anns_field="embedding",
+                data=query_embedding,
+                search_params=search_params,
+                limit=5,
+                output_fields=["text"],
+            )
         finally:
             self.client.release_collection(collection_name)
 
-        return results
+        return results  # type: ignore

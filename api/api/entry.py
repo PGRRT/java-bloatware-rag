@@ -19,7 +19,6 @@ if __name__ == "__main__":
     import logging
 
     logging.basicConfig(level=logging.DEBUG)
-    app = create_api()
 
     # Uvicorn isn't in requirements.txt so make sure you install it before running this file
 

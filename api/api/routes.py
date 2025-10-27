@@ -1,10 +1,10 @@
+from rag.rag import RAG
 from typing import List, Annotated
 from typing_extensions import TypedDict
 from fastapi import APIRouter, UploadFile, File
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from typing import Optional
-from rag.rag import RAG
 
 from pymupdf import Document
 import logging
@@ -24,27 +24,11 @@ logger.addHandler(console_handler)
 # Disable propagation if you don't want library logs
 logger.propagate = False
 
+
 rag_router = APIRouter()
 
+
 rag = RAG()
-
-
-def dummy_rag_response(
-    conversation_id: int, query: str, history: List[str]
-) -> tuple[str, List[str]]:
-    """
-    Returns example rag response.
-    To be used before rag development is complete.
-    """
-
-    return (
-        f"Example RAG Response for conversation: {conversation_id} with query: {query}. conversation history size: : {history}",
-        [
-            "Context 1",
-            "Really long context number 2 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum",
-            "Context 3 Example context number 3 from rag rag rag rag rag rag rag",
-        ],
-    )
 
 
 class RagResponse(TypedDict):
@@ -81,11 +65,11 @@ async def query(conversation_id: int, params: QueryParams) -> JSONResponse:
     # TODO :: Error handling when rag will be ready
 
     try:
-        rag_response, contexts = dummy_rag_response(conversation_id, query, history)
         rag_response = rag.process_query(query, conversation_id)
 
         response["message"] = rag_response
-        response["contexts"] = contexts
+        # TODO :: Add contexts
+        response["contexts"] = ["Contexts not implemented yet"]
 
         return JSONResponse(content=response)
 
