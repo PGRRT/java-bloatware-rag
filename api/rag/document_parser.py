@@ -1,5 +1,5 @@
 from typing import Any
-import pymupdf4llm  # type: ignore
+import pymupdf4llm
 from pymupdf import Document
 from multiprocessing import Pool, cpu_count
 import logging

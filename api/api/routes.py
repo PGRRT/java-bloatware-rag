@@ -1,10 +1,10 @@
-from rag.rag import RAG
 from typing import List, Annotated
 from typing_extensions import TypedDict
-from fastapi import APIRouter, UploadFile, File
+from fastapi import APIRouter, UploadFile, File, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from typing import Optional
+from api.entry import ApiState
 
 from pymupdf import Document
 import logging
@@ -24,11 +24,7 @@ logger.addHandler(console_handler)
 # Disable propagation if you don't want library logs
 logger.propagate = False
 
-
 rag_router = APIRouter()
-
-
-rag = RAG()
 
 
 class RagResponse(TypedDict):
@@ -50,10 +46,13 @@ class QueryParams(BaseModel):
 
 
 @rag_router.post("/query/{conversation_id}")
-async def query(conversation_id: int, params: QueryParams) -> JSONResponse:
+async def query(
+    request: Request, conversation_id: int, params: QueryParams
+) -> JSONResponse:
     """
     Query the RAG system.
     """
+    state: ApiState = request.app.state
 
     query = params.query
     history = params.message_history if params.message_history else []
@@ -65,7 +64,7 @@ async def query(conversation_id: int, params: QueryParams) -> JSONResponse:
     # TODO :: Error handling when rag will be ready
 
     try:
-        rag_response = rag.process_query(query, conversation_id)
+        rag_response = state.rag.process_query(query, conversation_id)
 
         response["message"] = rag_response
         # TODO :: Add contexts
@@ -89,11 +88,15 @@ class UploadResponse(TypedDict):
 
 @rag_router.post("/upload/{conversation_id}")
 async def upload_documents(
-    conversation_id: int, files: Annotated[List[UploadFile], File(...)] = []
+    request: Request,
+    conversation_id: int,
+    files: Annotated[List[UploadFile], File(...)] = [],
 ) -> JSONResponse:
     """
     Upload documents to RAG system.
     """
+    state: ApiState = request.app.state
+
     logger.info(
         f"Received {len(files)} files for conversation {conversation_id}.\nFile data {files}"
     )
@@ -113,7 +116,7 @@ async def upload_documents(
         )
         files_bytes = await file.read()
         doc = Document(stream=files_bytes, filetype="pdf")
-        rag.process_document(doc, conversation_id)
+        state.rag.process_document(doc, conversation_id)
 
     return JSONResponse(content=response, status_code=201)
 

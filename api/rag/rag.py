@@ -1,20 +1,43 @@
 from typing import Any
+from typing_extensions import override
 
 from pymupdf import Document
 from rag.rag_database import RAGDatabase
 from rag.llm import LLM
 from rag.document_parser import parse_to_markdown
+from abc import ABC, abstractmethod
 
 from sentence_transformers import SentenceTransformer
 
 
-class RAG:
+class RAG(ABC):
+    @abstractmethod
+    def process_document(self, document: Document, conversation_id: int) -> None:
+        pass
+
+    @abstractmethod
+    def process_query(self, query: str, conversation_id: int) -> str:
+        pass
+
+
+class MockRAG(RAG):
+    @override
+    def process_document(self, document: Document, conversation_id: int) -> None:
+        pass
+
+    @override
+    def process_query(self, query: str, conversation_id: int) -> str:
+        return "Mock process query"
+
+
+class ClassicRAG(RAG):
     def __init__(self, chunk_size: int = 1024):
         self.client: RAGDatabase = RAGDatabase(embedding_dim=768)
         self.llm: LLM = LLM()
         self.embedder: SentenceTransformer = SentenceTransformer("all-mpnet-base-v2")
         self.chunk_size: int = chunk_size
 
+    @override
     def process_document(self, document: Document, conversation_id: int) -> None:
         parsed_document = parse_to_markdown(document)
 
@@ -22,6 +45,17 @@ class RAG:
             self.__prepare_document_embeddings_with_corresponding_text(parsed_document)
         )
         self.client.insert_data(conversation_id, embeddings_with_text_pairs)
+
+    @override
+    def process_query(self, query: str, conversation_id: int) -> str:
+        relevant_documents = self.__get_relevant_documents_by_query(
+            conversation_id, query
+        )
+        prompt = f"Pytanie: {query} \n \n {relevant_documents}"
+
+        response = self.llm.generate_response(prompt)
+
+        return response
 
     def __prepare_document_embeddings_with_corresponding_text(
         self, document: str
@@ -59,16 +93,6 @@ class RAG:
         return [
             text[i : i + self.chunk_size] for i in range(0, len(text), self.chunk_size)
         ]
-
-    def process_query(self, query: str, conversation_id: int) -> str:
-        relevant_documents = self.__get_relevant_documents_by_query(
-            conversation_id, query
-        )
-        prompt = f"Pytanie: {query} \n \n {relevant_documents}"
-
-        response = self.llm.generate_response(prompt)
-
-        return response
 
     def __get_relevant_documents_by_query(
         self, conversation_id: int, query: str

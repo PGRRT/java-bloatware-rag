@@ -1,6 +1,6 @@
 from typing import Any
-from pymilvus import MilvusClient, CollectionSchema, DataType  # type: ignore
-from pymilvus.milvus_client import IndexParams  # type: ignore
+from pymilvus import MilvusClient, CollectionSchema, DataType
+from pymilvus.milvus_client import IndexParams
 
 
 class RAGDatabase:
