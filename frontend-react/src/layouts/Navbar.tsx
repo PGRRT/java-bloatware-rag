@@ -1,6 +1,4 @@
 import ContentWrapper from "@/components/ui/ContentWrapper";
-import CustomPopover from "@/components/ui/CustomPopover";
-import MantineExamples from "@/components/ui/MantineExamples";
 import SelectInput from "@/components/ui/SelectInput";
 import useViewport from "@/hooks/useViewport";
 import { Button } from "@mantine/core";
@@ -12,8 +10,8 @@ const ragOptions = [
     value: "classical_rag",
   },
   {
-    label: "Jazz Rag",
-    value: "jazz_rag",
+    label: "Bielik",
+    value: "bielik",
   },
 ];
 const Navbar = () => {

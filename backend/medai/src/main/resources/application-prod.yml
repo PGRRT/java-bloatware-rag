@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: backend
+
+  # DevTools turned off in production
+  devtools:
+    restart:
+      enabled: false
+
+  # Config for production database
+  datasource:
+    url: jdbc:postgresql://db:5432/signaro-prod
+    username: myuser1
+    password: secret
+    driver-class-name: org.postgresql.Driver
+
+  # Config for production JPA/Hibernate
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    database-platform: org.hibernate.dialect.PostgreSQLDialect

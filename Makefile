@@ -7,9 +7,9 @@ start-dev:
 stop-dev:
 	docker compose -f compose.dev.yaml down 
 
-# rebuild-backend-dev:
-# 	docker compose -f compose.dev.yaml stop backend
-# 	docker compose -f compose.dev.yaml build backend
+rebuild-backend-dev:
+	docker compose -f compose.dev.yaml stop backend
+	docker compose -f compose.dev.yaml build backend
 
 rebuild-api-dev:
 	docker compose -f compose.dev.yaml stop api

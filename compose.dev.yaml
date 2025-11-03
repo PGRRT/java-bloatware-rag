@@ -21,9 +21,9 @@ services:
       - 5173:5173
     networks:
       - app_network
-    # depends_on:
-      # backend:
-        # condition: service_healthy
+    depends_on:
+      backend:
+        condition: service_healthy
     
   api:
     container_name: api
@@ -62,25 +62,52 @@ services:
               count: all
               capabilities: [ gpu ]
     # restart: unless-stopped
-      
-  # db:
-  #   container_name: db
-  #   image: 'postgres:17'
-  #   restart: unless-stopped
-  #   env_file:
-  #     - .env
-  #     - .env.dev.local
-  #   healthcheck:
-  #     test: ["CMD", "pg_isready", "-U", "postgres"]
-  #     interval: 10s
-  #     retries: 10
-  #     timeout: 5s
-  #   ports:
-  #     - '5432:5432'
-  #   volumes:
-  #     - "pgdata:/var/lib/postgresql/data"
-  #   networks:
-  #     - app_network
+    
+  backend:
+    container_name: backend
+    build:
+      context: ./backend/medai
+      dockerfile: docker/dev.Dockerfile
+    env_file:
+      - .env
+      - .env.dev.local
+    ports:
+      - 8080:8080
+    volumes:
+      - ./backend/medai:/app
+      - ~/.m2:/root/.m2
+    networks:
+      - app_network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/actuator/health || exit 1"]
+      interval: 10s
+      retries: 10
+      start_period: 30s
+      timeout: 5s
+    depends_on:
+      db:
+        condition: service_healthy
+      # redis:
+      #   condition: service_healthy   
+  
+  db:
+    container_name: db
+    image: 'postgres:17'
+    restart: unless-stopped
+    env_file:
+      - .env
+      - .env.dev.local
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 10s
+      retries: 10
+      timeout: 5s
+    ports:
+      - '5432:5432'
+    volumes:
+      - "pgdata:/var/lib/postgresql/data"
+    networks:
+      - app_network
 
   # redis:
   #   container_name: redis
