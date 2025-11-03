@@ -21,7 +21,6 @@ Pre commit is used to automatically run linters, formatters and ensures that all
 > This is current method to start a project
 To start the project simply type: ```make start-dev```
 <!-- 
-
 > [!NOTE]
 > Project is developed for Python 3.11.9
 
