@@ -18,8 +18,8 @@ RUN ./mvnw dependency:resolve
 
 EXPOSE 8080
 
-# Fixes problem with mvnw \r ending on linux 
-COPY entrypoint.sh /usr/local/bin/entrypoint.sh 
+# Fixes problem with mvnw \r ending on linux
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 

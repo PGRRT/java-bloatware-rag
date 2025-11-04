@@ -24,7 +24,7 @@ services:
     depends_on:
       backend:
         condition: service_healthy
-    
+
   api:
     container_name: api
     build:
@@ -62,7 +62,7 @@ services:
               count: all
               capabilities: [ gpu ]
     # restart: unless-stopped
-    
+
   backend:
     container_name: backend
     build:
@@ -88,8 +88,8 @@ services:
       db:
         condition: service_healthy
       # redis:
-      #   condition: service_healthy   
-  
+      #   condition: service_healthy
+
   db:
     container_name: db
     image: 'postgres:17'
@@ -126,7 +126,7 @@ services:
   #     interval: 10s
   #     timeout: 5s
   #     retries: 10
-  #     start_period: 5s  
+  #     start_period: 5s
 
 volumes:
   pgdata:

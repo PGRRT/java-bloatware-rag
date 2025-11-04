@@ -9,7 +9,7 @@ restart-dev:
 	docker compose -f compose.dev.yaml up
 
 stop-dev:
-	docker compose -f compose.dev.yaml down 
+	docker compose -f compose.dev.yaml down
 
 rebuild-backend-dev:
 	docker compose -f compose.dev.yaml stop backend
@@ -44,7 +44,7 @@ stop-prod:
 
 
 rebuild-prod:
-	docker compose -f compose.prod.yaml down  
+	docker compose -f compose.prod.yaml down
 	docker compose -f compose.prod.yaml build --no-cache
 	docker compose -f compose.prod.yaml up
 
