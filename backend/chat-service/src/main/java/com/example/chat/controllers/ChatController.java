@@ -20,10 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class ChatController {
     private final ChatService chatService;
 
-    @GetMapping
-    public ResponseEntity<String> healthCheck() {
-        return new ResponseEntity<>("Chat Service is up and running!", HttpStatus.OK);
-    }
+  
 
     @PostMapping
     public ResponseEntity<CreateChatResponse> createChat(@Valid @RequestBody CreateChatRequest request) {

@@ -11,9 +11,9 @@
 
 
     <modules>
-<!--        <module>user-service</module>-->
         <module>chat-service</module>
         <module>user-service</module>
+        <module>eureka</module>
         <module>gateway</module>
 <!--        <module>eureka-server</module>-->
 <!--        <module>config-server</module>-->

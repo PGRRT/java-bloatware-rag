@@ -1,3 +1,5 @@
+server:
+  port: 8082
 spring:
   devtools:
     restart:
@@ -15,3 +17,9 @@ spring:
 
 app:
   allowed-origins: ${ALLOWED_ORIGINS}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://${EUREKA_USERNAME}:${EUREKA_PASSWORD}@eureka:8761/eureka/
+
