@@ -12,7 +12,7 @@
 	<artifactId>chat-service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>chat-service</name>
-	<description>Microservice for chat management</description>
+	<description>Service for chat management</description>
 	<url/>
 	<licenses>
 		<license/>

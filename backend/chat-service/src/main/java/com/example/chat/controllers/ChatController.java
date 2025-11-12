@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class ChatController {
     private final ChatService chatService;
 
-  
+
 
     @PostMapping
     public ResponseEntity<CreateChatResponse> createChat(@Valid @RequestBody CreateChatRequest request) {

@@ -5,9 +5,9 @@ spring:
     restart:
       enabled: true
   datasource:
-    url: jdbc:postgresql://db:5432/${POSTGRES_DB}
-    username: ${POSTGRES_USER}
-    password: ${POSTGRES_PASSWORD}
+    url: jdbc:postgresql://db:5432/${POSTGRES_DB_USER}
+    username: ${POSTGRES_USER_USER}
+    password: ${POSTGRES_PASSWORD_USER}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
