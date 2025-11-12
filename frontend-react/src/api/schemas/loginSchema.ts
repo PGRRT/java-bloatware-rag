@@ -9,7 +9,7 @@
 //       .regex(/[a-zA-Z]/, { message: "Password must include a letter" })
 //       .regex(/[0-9]/, { message: "Password must include a number" }),
 //   })
- 
+
 
 // export type LoginFormData = z.infer<typeof loginSchema>;
 

@@ -110,26 +110,26 @@ export const showToast = {
       errorMessage?: string | ((error: any) => string)
       },
       options?: {
-        showDefaultErrorMessage?: boolean; 
+        showDefaultErrorMessage?: boolean;
       }
-     
+
     ): Promise<T> => {
       const { loadingMessage, successMessage, errorMessage } = messages ?? {};
       const { showDefaultErrorMessage } = options ?? {};
       const loadingToast = toast.loading(loadingMessage);
-      
+
       try {
         const result = await asyncFn();
-        
+
         toast.dismiss(loadingToast);
-        
+
         if (successMessage) {
-          const message = typeof successMessage === 'function' 
-            ? successMessage(result) 
+          const message = typeof successMessage === 'function'
+            ? successMessage(result)
             : successMessage;
           toast.success(message);
         }
-        
+
         return result;
       } catch (error) {
         toast.dismiss(loadingToast);
