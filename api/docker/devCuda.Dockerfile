@@ -8,6 +8,6 @@ RUN pip install --upgrade pip && pip install -r /app/requirements.txt
 
 COPY . /app
 
-EXPOSE 8081
+EXPOSE 9000
 
-CMD ["fastapi", "dev", "--entrypoint", "api.entry:create_api", "--port", "8081"]
+CMD ["fastapi", "dev", "--entrypoint", "api.entry:create_api", "--port", "9000"]

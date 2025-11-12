@@ -10,3 +10,38 @@ milvus_database.db
 .env
 # local env files
 .env*.local
+
+
+# Java / Maven (apply to backend microservices too)
+target/
+backend/**/target/
+.mvn/wrapper/maven-wrapper.jar
+backend/**/.mvn/wrapper/maven-wrapper.jar
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+workspace.xml
+
+### NetBeans (match anywhere in repo) ###
+nbproject/private/
+**/nbproject/private/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+build/
+
+### VS Code ###
+.vscode/

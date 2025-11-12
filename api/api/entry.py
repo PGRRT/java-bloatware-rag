@@ -56,4 +56,4 @@ if __name__ == "__main__":
 
     # import uvicorn
 
-    # uvicorn.run('api.entry:create_api',host="0.0.0.0",factory=True,port=8081,workers=4,log_level="debug",access_log=True)
+    # uvicorn.run('api.entry:create_api',host="0.0.0.0",factory=True,port=9000,workers=4,log_level="debug",access_log=True)

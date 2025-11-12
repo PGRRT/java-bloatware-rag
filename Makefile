@@ -12,8 +12,8 @@ stop-dev:
 	docker compose -f compose.dev.yaml down 
 
 rebuild-backend-dev:
-	docker compose -f compose.dev.yaml stop backend
-	docker compose -f compose.dev.yaml build backend
+	docker compose -f compose.dev.yaml stop user-service chat-service gateway
+	docker compose -f compose.dev.yaml build user-service chat-service gateway
 
 rebuild-api-dev:
 	docker compose -f compose.dev.yaml stop api
@@ -62,7 +62,7 @@ logs-frontend-dev:
 	docker compose -f compose.dev.yaml logs -f frontend
 
 logs-backend-dev:
-	docker compose -f compose.dev.yaml logs -f backend
+	docker compose -f compose.dev.yaml logs -f user-service chat-service gateway
 
 logs-dev-all:
 	docker compose -f compose.dev.yaml logs -f

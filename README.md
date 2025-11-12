@@ -25,12 +25,12 @@ To start the project simply type: ```make start-dev```
 > Project is developed for Python 3.11.9
 
 > [!NOTE]
-> As of the current state port has to be set to 8081 for it to work with frontend
+> As of the current state port has to be set to 9000 for it to work with frontend
 
 1. From repository root change directory to api's directory ```cd ./api```
 2. Create virtual environment (optional) ```python -m venv .venv``` and activate it with: ```source ./.venv/bin/activate``` (Linux) or ```.\.venv\Scripts\activate``` (Windows)
 3. install requirements ```pip install -r requirements.txt```
-4. Run the development API ```fastapi dev --entrypoint api.entry:create_api --port 8081```
+4. Run the development API ```fastapi dev --entrypoint api.entry:create_api --port 9000```
 
 
 ### Running frontend React application

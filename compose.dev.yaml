@@ -1,72 +1,72 @@
 services:
-  frontend:
-    container_name: frontend-react
-    build:
-      context: ./frontend-react
-      dockerfile: docker/dev.Dockerfile
+  # frontend:
+  #   container_name: frontend-react
+  #   build:
+  #     context: ./frontend-react
+  #     dockerfile: docker/dev.Dockerfile
 
-    environment:
-      WATCHPACK_POLLING: true
-    init: true
-    env_file:
-      - .env
-      - .env.dev.local
-    volumes:
-      - ./frontend-react/src:/app/src
-      - ./frontend-react/public:/app/public
-      - /app/node_modules
-      - /app/.next
-    restart: unless-stopped
-    ports:
-      - 5173:5173
-    networks:
-      - app_network
-    depends_on:
-      backend:
-        condition: service_healthy
+  #   environment:
+  #     WATCHPACK_POLLING: true
+  #   init: true
+  #   env_file:
+  #     - .env
+  #     - .env.dev.local
+  #   volumes:
+  #     - ./frontend-react/src:/app/src
+  #     - ./frontend-react/public:/app/public
+  #     - /app/node_modules
+  #     - /app/.next
+  #   restart: unless-stopped
+  #   ports:
+  #     - 5173:5173
+  #   networks:
+  #     - app_network
+  #   depends_on:
+  #     user-service:
+  #       condition: service_healthy
+  #     chat-service:
+  #       condition: service_healthy
     
-  api:
-    container_name: api
-    build:
-      context: ./api
-      dockerfile: docker/devPure.Dockerfile
-    env_file:
-        - .env
-        - .env.dev.local
-    ports:
-      - 8081:8081
-    volumes:
-      - ./api/app:/app/app
-      - ./api/requirements.txt:/app/requirements.txt
-    environment:
-      - WATCHFILES_FORCE_POLLING=1  # This forces file watching (solves issues with hot reloading on windows)
-      - WATCHFILES_POLLING_INTERVAL=1  # Check every 1 second
-      - PYTHONUNBUFFERED=1
-      - PYTHONPATH=/app/app
+  # api:
+  #   container_name: api
+  #   build:
+  #     context: ./api
+  #     dockerfile: docker/devPure.Dockerfile
+  #   env_file:
+  #       - .env
+  #       - .env.dev.local
+  #   ports:
+  #     - 9000:9000
+  #   volumes:
+  #     - ./api/app:/app/app
+  #     - ./api/requirements.txt:/app/requirements.txt
+  #   environment:
+  #     - WATCHFILES_FORCE_POLLING=1  # This forces file watching (solves issues with hot reloading on windows)
+  #     - WATCHFILES_POLLING_INTERVAL=1  # Check every 1 second
+  #     - PYTHONUNBUFFERED=1
+  #     - PYTHONPATH=/app/app
 
-      # ✅ GPU environment variables
-      - NVIDIA_VISIBLE_DEVICES=all
-      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
-      # ✅ Force TensorFlow to use GPU
-      - CUDA_VISIBLE_DEVICES=0
-    networks:
-      - app_network
-    # depends_on:
-      # backend:
-        # condition: service_healthy
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [ gpu ]
-    # restart: unless-stopped
+  #     # ✅ GPU environment variables
+  #     - NVIDIA_VISIBLE_DEVICES=all
+  #     - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+  #     # ✅ Force TensorFlow to use GPU
+  #     - CUDA_VISIBLE_DEVICES=0
+  #   networks:
+  #     - app_network
+  #   deploy:
+  #     resources:
+  #       reservations:
+  #         devices:
+  #           - driver: nvidia
+  #             count: all
+  #             capabilities: [ gpu ]
+  #   # restart: unless-stopped
     
-  backend:
-    container_name: backend
+
+  gateway:
+    container_name: gateway
     build:
-      context: ./backend/medai
+      context: ./backend/gateway
       dockerfile: docker/dev.Dockerfile
     env_file:
       - .env
@@ -74,7 +74,7 @@ services:
     ports:
       - 8080:8080
     volumes:
-      - ./backend/medai:/app
+      - ./backend/gateway:/app
       - ~/.m2:/root/.m2
     networks:
       - app_network
@@ -89,6 +89,61 @@ services:
         condition: service_healthy
       # redis:
       #   condition: service_healthy   
+
+  user-service:
+    container_name: user-service
+    build:
+      context: ./backend/user-service
+      dockerfile: docker/dev.Dockerfile
+    env_file:
+      - .env
+      - .env.dev.local
+    ports:
+      - 8081:8081
+    volumes:
+      - ./backend/user-service:/app
+      - ~/.m2:/root/.m2
+    networks:
+      - app_network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8081/actuator/health || exit 1"]
+      interval: 10s
+      retries: 10
+      start_period: 30s
+      timeout: 5s
+    depends_on:
+      gateway:
+        condition: service_healthy
+      # redis:
+      #   condition: service_healthy 
+  chat-service:
+    container_name: chat-service
+    build:
+      context: ./backend/chat-service
+      dockerfile: docker/dev.Dockerfile
+    env_file:
+      - .env
+      - .env.dev.local
+    ports:
+      - 8082:8082
+    volumes:
+      - ./backend/chat-service:/app
+      - ~/.m2:/root/.m2
+    networks:
+      - app_network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8082/actuator/health || exit 1"]
+      interval: 10s
+      retries: 10
+      start_period: 30s
+      timeout: 5s
+    depends_on:
+      gateway:
+        condition: service_healthy
+      # redis:
+      #   condition: service_healthy   
+
+
   
   db:
     container_name: db
