@@ -89,31 +89,6 @@ services:
       db:
         condition: service_healthy
 
-  gateway:
-    container_name: gateway
-    build:
-      context: ./backend/gateway
-      dockerfile: docker/dev.Dockerfile
-    env_file:
-      - .env
-      - .env.dev.local
-    ports:
-      - 8080:8080
-    volumes:
-      - ./backend/gateway:/app
-      - ~/.m2:/root/.m2
-    networks:
-      - app_network
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8080/actuator/health || exit 1"]
-      interval: 10s
-      retries: 10
-      start_period: 30s
-      timeout: 5s
-    depends_on:
-      eureka:
-        condition: service_healthy
-
   user-service:
     container_name: user-service
     build:
@@ -136,7 +111,7 @@ services:
       start_period: 30s
       timeout: 5s
     depends_on:
-      gateway:
+      eureka:
         condition: service_healthy
       # redis:
       #   condition: service_healthy 
@@ -162,12 +137,37 @@ services:
       start_period: 30s
       timeout: 5s
     depends_on:
-      gateway:
+      eureka:
         condition: service_healthy
       # redis:
       #   condition: service_healthy   
 
-
+  gateway:
+    container_name: gateway
+    build:
+      context: ./backend/gateway
+      dockerfile: docker/dev.Dockerfile
+    env_file:
+      - .env
+      - .env.dev.local
+    ports:
+      - 8080:8080
+    volumes:
+      - ./backend/gateway:/app
+      - ~/.m2:/root/.m2
+    networks:
+      - app_network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/actuator/health || exit 1"]
+      interval: 10s
+      retries: 10
+      start_period: 30s
+      timeout: 5s
+    depends_on:
+      chat-service:
+        condition: service_healthy
+      user-service:
+        condition: service_healthy
   
     # PostgreSQL container shared by multiple microservices:
     # - user-service uses database 'userdb'
