@@ -10,5 +10,6 @@ import java.util.UUID;
 
 
 public record CreateChatResponse (
-        UUID id
+        UUID id,
+        String title
 ){}

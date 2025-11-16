@@ -1,6 +1,7 @@
 package com.example.chat.service.impl;
 
 import com.example.chat.domain.dto.message.request.CreateMessageRequest;
+import com.example.chat.domain.dto.message.response.CreateMessageResponse;
 import com.example.chat.domain.dto.message.response.MessageResponse;
 import com.example.chat.domain.entities.Chat;
 import com.example.chat.domain.entities.Message;
@@ -29,16 +30,16 @@ public class MessageServiceImpl implements MessageService {
             throw new IllegalArgumentException("Message not found");
         });
         
-        return messageMapper.toResponse(message);
+        return messageMapper.toMessageResponse(message);
     }
 
-    public MessageResponse createMessage(UUID chatId, CreateMessageRequest createMessageRequest) {
+    public CreateMessageResponse createMessage(UUID chatId, CreateMessageRequest createMessageRequest) {
         Chat chat = chatService.findById(chatId);
 
         Message message = messageMapper.toEntity(createMessageRequest);
         message.setChat(chat);
         Message save = messageRepository.save(message);
-        return messageMapper.toResponse(save);
+        return messageMapper.toCreateMessageResponse(save);
     }
 
     public void deleteMessage(UUID chatId, UUID messageId) {

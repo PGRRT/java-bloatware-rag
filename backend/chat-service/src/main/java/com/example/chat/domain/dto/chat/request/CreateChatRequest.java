@@ -1,5 +1,6 @@
 package com.example.chat.domain.dto.chat.request;
 
+import com.example.chat.domain.enums.ChatType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -14,6 +15,6 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateChatRequest {
-    @NotNull(message = "User ID is required")
-    UUID userId;
+    String title;
+    ChatType chatType;
 }

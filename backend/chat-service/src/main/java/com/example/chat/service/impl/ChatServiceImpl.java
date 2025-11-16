@@ -1,10 +1,11 @@
 package com.example.chat.service.impl;
 
 import com.example.chat.domain.dto.chat.request.CreateChatRequest;
+import com.example.chat.domain.dto.chat.response.ChatResponse;
+import com.example.chat.domain.dto.chat.response.ChatWithMessagesResponse;
 import com.example.chat.domain.dto.chat.response.CreateChatResponse;
 import com.example.chat.domain.dto.message.response.MessageResponse;
 import com.example.chat.domain.entities.Chat;
-import com.example.chat.domain.entities.Message;
 import com.example.chat.mapper.ChatMapper;
 import com.example.chat.mapper.MessageMapper;
 import com.example.chat.repository.ChatRepository;
@@ -14,24 +15,46 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class ChatServiceImpl implements ChatService {
-
     private final ChatRepository chatRepository;
     private final ChatMapper chatMapper;
     private final MessageMapper messageMapper;
+
+    public List<ChatResponse> getAllChats() {
+
+        // TODO:
+        // in future we will get this from security context
+        UUID userId = null;
+        List<Chat> chatsForUser = chatRepository.findChatsForUser(userId);
+
+        return chatsForUser.stream().map(
+                chatMapper::toChatResponse
+        ).toList();
+    }
+
+    public List<ChatWithMessagesResponse> getAllChatsWithMessages() {
+
+        // TODO:
+        // in future we will get this from security context
+        UUID userId = null;
+        List<Chat> chatsForUser = chatRepository.findChatsForUser(userId);
+
+        return chatsForUser.stream().map(
+                chatMapper::toChatWithMessagesResponse
+        ).toList();
+    }
 
     public CreateChatResponse saveChat(CreateChatRequest chatRequest) {
         // check if user exists
 
         Chat chat = chatMapper.toEntity(chatRequest);
         Chat savedChat = chatRepository.save(chat);
-        return chatMapper.toResponse(savedChat);
+        return chatMapper.toCreateChatResponse(savedChat);
     }
 
     public List<MessageResponse> getAllMessagesInChat(UUID chatId) {
@@ -40,7 +63,7 @@ public class ChatServiceImpl implements ChatService {
             return new IllegalArgumentException("Chat with id " + chatId + " not found.");
         });
 
-        return chat.getMessages().stream().map(messageMapper::toResponse).toList();
+        return chat.getMessages().stream().map(messageMapper::toMessageResponse).toList();
     }
 
     public void deleteChat(UUID chatId) {

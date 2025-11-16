@@ -1,6 +1,8 @@
 package com.example.chat.domain.entities;
 
+import com.example.chat.domain.enums.ChatType;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.AssertTrue;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -26,6 +28,13 @@ public class Chat extends BaseClass<UUID> {
     @Column(name="user_id")
     private UUID userId;
 
+    @Column(nullable = false)
+    private String title;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private ChatType chatType;
+
     @Builder.Default
     @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     List<Message> messages = new ArrayList<>();
@@ -37,4 +46,10 @@ public class Chat extends BaseClass<UUID> {
     @LastModifiedDate
     @Column(nullable = false)
     private LocalDateTime updatedAt;
+
+    @AssertTrue(message = "userId must be set for PRIVATE chats and null for GLOBAL chats")
+    private boolean isUserIdValid() {
+        return (chatType == ChatType.PRIVATE && userId != null) ||
+                (chatType == ChatType.GLOBAL && userId == null);
+    }
 }

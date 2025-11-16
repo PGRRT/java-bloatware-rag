@@ -4,8 +4,17 @@
 import backendApi from "@/api/backendApi";
 
 export const userApi = {
-  postChatMessage: async (message: string): Promise<void> =>
-    backendApi.post("/api/v1/chats/message", { message }),
+  getChats: async (): Promise<any[]> => backendApi.get("/api/v1/chats"),
+  createChat: async (title: string): Promise<any> => backendApi.post("/api/v1/chats", { title }),
+  deleteChat: async (chatId: string): Promise<void> => backendApi.delete(`/api/v1/chats/${chatId}`),
+  updateChat: async (chatId: string, title: string): Promise<any> =>
+    backendApi.put(`/api/v1/chats/${chatId}`, { title }),
+
+  getMessages: async (chatId: string): Promise<any[]> => backendApi.get(`/api/v1/chats/${chatId}/messages`),
+
+  postMessage: async (chatId: string, content: string, sender = "USER"): Promise<void> =>
+    backendApi.post(`/api/v1/chats/${chatId}/messages`, { content }), // userId
+
 
   // getUserClient: async () => apiClientBrowser.get("/api/v1/auth/me"),
 

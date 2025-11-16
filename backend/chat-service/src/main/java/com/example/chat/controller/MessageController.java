@@ -1,6 +1,7 @@
 package com.example.chat.controller;
 
 import com.example.chat.domain.dto.message.request.CreateMessageRequest;
+import com.example.chat.domain.dto.message.response.CreateMessageResponse;
 import com.example.chat.domain.dto.message.response.MessageResponse;
 import com.example.chat.service.ChatService;
 import com.example.chat.service.impl.MessageServiceImpl;
@@ -38,11 +39,11 @@ public class MessageController {
     }
 
     @PostMapping
-    public ResponseEntity<MessageResponse> createMessage(
+    public ResponseEntity<CreateMessageResponse> createMessage(
             @PathVariable("chatId") UUID chatId,
             @Valid @RequestBody CreateMessageRequest createMessageRequest
     ) {
-        MessageResponse created = messageService.createMessage(chatId, createMessageRequest);
+        CreateMessageResponse created = messageService.createMessage(chatId, createMessageRequest);
         return ResponseEntity.ok(created);
     }
 
