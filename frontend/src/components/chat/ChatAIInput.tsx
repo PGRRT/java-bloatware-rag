@@ -2,7 +2,7 @@ import ContentWrapper from "@/components/ui/ContentWrapper";
 import IconWrapper from "@/components/ui/IconWrapper";
 import { styles } from "@/constants/styles";
 import { typography } from "@/constants/typography";
-import useChat from "@/hooks/useChat";
+import useChatInput from "@/hooks/useChatInput";
 import { css, cx } from "@emotion/css";
 import {
   Button,
@@ -15,11 +15,16 @@ import {
 import { ChevronUp, MoveUp, Paperclip } from "lucide-react";
 import { useState } from "react";
 
-const InputAIForm = () => {
-  const { file, setFile, message, setMessage, sendMessage } = useChat();
+const ChatAIInput = () => {
+  const { file, setFile, message, setMessage, sendMessage } = useChatInput();
 
   return (
-    <form onSubmit={sendMessage}>
+    <form
+      onSubmit={sendMessage}
+      className={css`
+        width: 100%;
+      `}
+    >
       <TextInput
         value={message}
         onChange={(e) => setMessage(e.currentTarget.value)}
@@ -66,4 +71,4 @@ const InputAIForm = () => {
   );
 };
 
-export default InputAIForm;
+export default ChatAIInput;

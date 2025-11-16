@@ -6,11 +6,12 @@ import { useState } from "react";
 import type { SenderType } from "@/api/enums/SenderType";
 import { useNavigate } from "react-router-dom";
 
-const UseChat = () => {
+const useChatInput = () => {
   const [file, setFile] = useState<File | null>(null);
   const [message, setMessage] = useState("");
   const user = useUser();
   const navigate = useNavigate();
+  
   const sendMessage = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -25,9 +26,14 @@ const UseChat = () => {
       );
     }, "Chat created successfully");
 
-    console.log("created_chat: ", res);
+    if (res.success === false) {
+      return;
+    }
+
     setTimeout(() => {
-      navigate(`/chat/${res?.id}`);
+      navigate(`/chat/${res.data?.id}`, {
+        replace: false,
+      });
     }, 6000);
 
     setMessage("");
@@ -43,4 +49,4 @@ const UseChat = () => {
   };
 };
 
-export default UseChat;
+export default useChatInput;
