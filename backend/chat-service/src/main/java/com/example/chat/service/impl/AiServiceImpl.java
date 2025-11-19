@@ -1,7 +1,12 @@
 package com.example.chat.service.impl;
 
 import com.example.chat.domain.dto.ai.response.AiResponse;
+import com.example.chat.domain.dto.message.request.CreateMessageRequest;
+import com.example.chat.domain.enums.ChatEvent;
+import com.example.chat.domain.enums.Sender;
 import com.example.chat.service.AiService;
+import com.example.chat.service.MessageService;
+import com.example.chat.service.SseService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.client.RestTemplate;
@@ -16,12 +22,16 @@ import org.springframework.web.client.RestTemplate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class AiServiceImpl implements AiService {
     private final RestTemplate restTemplate;
+    private final MessageService messageService;
+    private final SseService sseService;
 
     public String generateResponse(UUID chatId, String prompt) {
         Map<String, String> requestBody = new HashMap<>();
@@ -41,17 +51,16 @@ public class AiServiceImpl implements AiService {
         }
 
         return response.message();
+    }
 
-        // aiResponse is a JSON stringified object from AI (e.g., '{"response": "### Medicine..."}')
-        // We need to parse it to extract the actual "response" text
-//        String aiResponse = response.message();
-//        ObjectMapper objectMapper = new ObjectMapper();
-//        try {
-//            JsonNode messageNode =  objectMapper.readTree(aiResponse);
-//            return messageNode.get("response").asText();
-//        } catch (Exception e) {
-//            log.error("Failed to parse AI response for chatId {}: {}", chatId, aiResponse);
-//            throw new RuntimeException("Failed to parse AI response");
-//        }
+    @Async
+    public void processAiResponseAsync(UUID chatId, String message) {
+        try {
+            String generatedResponse = generateResponse(chatId, message);
+            messageService.saveBotMessage(chatId, generatedResponse);
+        } catch (Exception ex) {
+            log.error("Async AI processing failed for chat {}", chatId, ex);
+            sseService.emit(chatId, ChatEvent.ERROR, "AI processing failed");
+        }
     }
 }

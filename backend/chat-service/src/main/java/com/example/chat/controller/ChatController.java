@@ -25,7 +25,6 @@ import java.util.UUID;
 public class ChatController {
     private final ChatService chatService;
 
-
     @GetMapping
     public ResponseEntity<List<ChatResponse>> getAllChats() {
         List<ChatResponse> allChatsWithMessages = chatService.getAllChats();

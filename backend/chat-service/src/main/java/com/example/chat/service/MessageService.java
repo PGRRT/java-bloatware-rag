@@ -9,5 +9,5 @@ public interface MessageService {
     MessageResponse getMessageById(UUID chatId, UUID messageId);
     CreateMessageResponse createMessage(UUID chatId, CreateMessageRequest createMessageRequest);
     void deleteMessage(UUID chatId, UUID messageId);
-
+    void saveBotMessage(UUID chatId, String generatedResponse);
 }

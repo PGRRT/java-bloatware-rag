@@ -18,6 +18,7 @@ import com.example.chat.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -54,6 +55,7 @@ public class ChatServiceImpl implements ChatService {
         ).toList();
     }
 
+    @Transactional
     public CreateChatResponse saveChat(CreateChatRequest chatRequest) {
         // check if user exists
 
@@ -72,6 +74,7 @@ public class ChatServiceImpl implements ChatService {
         return chat.getMessages().stream().map(messageMapper::toMessageResponse).toList();
     }
 
+    @Transactional
     public void deleteChat(UUID chatId) {
         if (!chatRepository.existsById(chatId)) {
             log.warn("Chat with id {} not found for deletion.", chatId);
