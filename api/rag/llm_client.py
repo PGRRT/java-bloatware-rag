@@ -11,7 +11,13 @@ class LLM(ABC):
     def generate_response(self, prompt: str) -> str:
         pass
 
-    system_prompt = """Odpowiadaj na pytania użytkownika dotyczące potencjalnych źródeł danych wymienionych w wiadomości.
+    system_prompt = ("""Odpowiadaj na pytania użytkownika dotyczące potencjalnych źródeł danych wymienionych w wiadomości.
+Przykład:
+
+Pytanie użytkownika: “Potrzebuję danych dotyczących migracji ludności w UE po 2015 roku.”
+Źródła wymienione przez użytkownika: Eurostat, ONZ, krajowe biura statystyczne""")
+
+    system_prompt_op = """Odpowiadaj na pytania użytkownika dotyczące potencjalnych źródeł danych wymienionych w wiadomości.
 
 Jeśli wiadomość NIE zawiera żadnych informacji na temat źródeł danych (lub nie wynika z niej, o jakie źródła chodzi), odpowiedz wyłącznie:
 **Masz za mało kontekstu, by udzielić rekomendacji.**
