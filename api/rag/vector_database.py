@@ -6,7 +6,7 @@ from uuid import UUID
 
 
 class RAGDatabase:
-    def __init__(self, embedding_dim: int = 2):
+    def __init__(self, embedding_dim: int = 768):
         self.client: MilvusClient = MilvusClient("./milvus_database.db")
         self.embedding_dim: int = embedding_dim
 
@@ -69,8 +69,9 @@ class RAGDatabase:
         index_params = self.client.prepare_index_params()
         index_params.add_index(
             field_name="embedding",
-            index_type="FLAT",  # or "HNSW"
-            metric_type="COSINE",
+            index_type="HNSW",
+            metric_type="IP",
+            params={"M": 32, "efConstruction": 200}
         )
 
         return index_params
@@ -123,7 +124,8 @@ class RAGDatabase:
 
         self.client.load_collection(collection_name)
         search_params = {
-            "metric_type": "COSINE",
+            "metric_type": "IP",
+            "params": {"ef": 128}
         }
 
         try:
