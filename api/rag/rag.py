@@ -12,10 +12,10 @@ import torch
 import torch.nn.functional as F
 from tqdm import tqdm
 
-from document import Document, DocumentLoaderFactory
-from vector_database import VectorDatabase
-from llm_client import LLM
-from llm_client import BielikLLM
+from rag.document import Document, DocumentLoaderFactory
+from rag.vector_database import VectorDatabase
+from rag.llm_client import LLM
+from rag.llm_client import BielikLLM
 
 
 logging.set_verbosity_debug()
