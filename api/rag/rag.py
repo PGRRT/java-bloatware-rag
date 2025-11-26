@@ -106,8 +106,10 @@ class ClassicRAG(RAG):
 
     @override
     def process_query(self, query: str, conversation_id: UUID) -> str:
+        base_conversation_id = 1234 # Nwm jakis cwel na frontendzie wymyslil sobie chaty, mimo ze tego nie potrzebujemy teraz
+
         query_embedding = self.__get_query_embedding(query)
-        contexts = self.client.search(conversation_id, query_embedding)
+        contexts = self.client.search(base_conversation_id, query_embedding)
         prompt = self.__create_prompt(query, contexts)
         response = self.llm.generate_response(prompt)
 
@@ -134,6 +136,3 @@ class ClassicRAG(RAG):
         contexts = "\n".join(contexts)
 
         return f"""Pytanie użytkownika: "{query}"\nŹródła wymienione przez użytkownika: "{contexts}"\n"""
-
-
-
