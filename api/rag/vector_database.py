@@ -5,9 +5,9 @@ from pymilvus.milvus_client import IndexParams
 from uuid import UUID
 
 
-class RAGDatabase:
-    def __init__(self, embedding_dim: int = 2):
-        self.client: MilvusClient = MilvusClient("./milvus_database.db")
+class VectorDatabase:
+    def __init__(self, embedding_dim: int = 768):
+        self.client: MilvusClient = MilvusClient(host="milvus-standalone",  port=19530)
         self.embedding_dim: int = embedding_dim
 
     def __create_collection(self, conversation_d: UUID) -> None:
@@ -69,8 +69,9 @@ class RAGDatabase:
         index_params = self.client.prepare_index_params()
         index_params.add_index(
             field_name="embedding",
-            index_type="FLAT",  # or "HNSW"
-            metric_type="COSINE",
+            index_type="HNSW",
+            metric_type="IP",
+            params={"M": 32, "efConstruction": 200}
         )
 
         return index_params
@@ -89,6 +90,14 @@ class RAGDatabase:
             self.client.drop_collection(collection_name)
         else:
             return
+
+    def remove_all_collections(self) -> None:
+        """
+        This function removes all collections from the vector database.
+        """
+        collections = self.client.list_collections()
+        for collection in collections:
+            self.client.drop_collection(collection)
 
     def insert_data(self, conversation_id: UUID, data: list[Any]) -> None:
         """
@@ -123,7 +132,8 @@ class RAGDatabase:
 
         self.client.load_collection(collection_name)
         search_params = {
-            "metric_type": "COSINE",
+            "metric_type": "IP",
+            "params": {"ef": 128}
         }
 
         try:
@@ -135,7 +145,10 @@ class RAGDatabase:
                 limit=5,
                 output_fields=["text"],
             )
+
+            results = results[0]
+            results = [result.get("entity").get("text") for result in results]
         finally:
             self.client.release_collection(collection_name)
 
-        return results  # type: ignore
+        return results

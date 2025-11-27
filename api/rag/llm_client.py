@@ -11,7 +11,13 @@ class LLM(ABC):
     def generate_response(self, prompt: str) -> str:
         pass
 
-    system_prompt = """Odpowiadaj na pytania użytkownika dotyczące potencjalnych źródeł danych wymienionych w wiadomości.
+    system_prompt = ("""Odpowiadaj na pytania użytkownika dotyczące fragmentow źródeł danych wymienionych w wiadomości.
+Przykład:
+
+Pytanie użytkownika: “Potrzebuję danych dotyczących migracji ludności w UE po 2015 roku.”
+Źródła wymienione przez użytkownika: Eurostat, ONZ, krajowe biura statystyczne""")
+
+    system_prompt_op = """Odpowiadaj na pytania użytkownika dotyczące potencjalnych źródeł danych wymienionych w wiadomości.
 
 Jeśli wiadomość NIE zawiera żadnych informacji na temat źródeł danych (lub nie wynika z niej, o jakie źródła chodzi), odpowiedz wyłącznie:
 **Masz za mało kontekstu, by udzielić rekomendacji.**
@@ -94,7 +100,7 @@ class BielikLLM(LLM):
         username: str,
         password: str,
         max_response_length: int = 4096,
-        temperature: float = 0.7,
+        temperature: float = 0.0,
     ) -> None:
         self.client = httpx.Client(auth=(username, password), verify=False)
         """HTTP client"""
@@ -135,6 +141,8 @@ if __name__ == "__main__":
     # openai = OpenAILLM()
     # prompt = "What is your name?"
     # openai.generate_response(prompt)
+
+    load_dotenv()
 
     bielik = BielikLLM(
         api_url=os.getenv("PG_API_URL") or "",
