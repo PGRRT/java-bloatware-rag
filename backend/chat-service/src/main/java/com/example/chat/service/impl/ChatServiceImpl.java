@@ -30,6 +30,7 @@ public class ChatServiceImpl implements ChatService {
     private final ChatMapper chatMapper;
     private final MessageMapper messageMapper;
 
+    @Override
     public List<ChatResponse> getAllChats() {
 
         // TODO:
@@ -42,6 +43,7 @@ public class ChatServiceImpl implements ChatService {
         ).toList();
     }
 
+    @Override
     public List<ChatWithMessagesResponse> getAllChatsWithMessages() {
 
         // TODO:
@@ -54,6 +56,7 @@ public class ChatServiceImpl implements ChatService {
         ).toList();
     }
 
+    @Override
     @Transactional
     public CreateChatResponse saveChat(CreateChatRequest chatRequest) {
         // check if user exists
@@ -63,7 +66,7 @@ public class ChatServiceImpl implements ChatService {
         return chatMapper.toCreateChatResponse(savedChat);
     }
 
-
+    @Override
     public List<MessageResponse> getAllMessagesInChat(UUID chatId) {
         Chat chat = chatRepository.findChatWithMessagesById(chatId).orElseThrow(() -> {
             log.warn("Chat with id {} not found when fetching messages.", chatId);
@@ -73,6 +76,7 @@ public class ChatServiceImpl implements ChatService {
         return chat.getMessages().stream().map(messageMapper::toMessageResponse).toList();
     }
 
+    @Override
     @Transactional
     public void deleteChat(UUID chatId) {
         if (!chatRepository.existsById(chatId)) {
@@ -82,10 +86,12 @@ public class ChatServiceImpl implements ChatService {
         chatRepository.deleteById(chatId);
     }
 
+    @Override
     public boolean existsById(UUID chatId) {
         return chatRepository.existsById(chatId);
     }
 
+    @Override
     public Chat findById(UUID chatId) {
         return chatRepository.findById(chatId).orElseThrow(() -> {
             log.warn("Chat with id {} not found.", chatId);

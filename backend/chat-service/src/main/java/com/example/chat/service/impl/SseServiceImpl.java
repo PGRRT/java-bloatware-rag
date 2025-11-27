@@ -23,12 +23,14 @@ public class SseServiceImpl implements SseService {
     private final Map<UUID, CopyOnWriteArraySet<SseEmitter>> emitters = new ConcurrentHashMap<>();
 
     // Map: emitter -> scheduled ping task, so we can cancel ping when emitter is removed
-    private final ConcurrentMap<SseEmitter, ScheduledFuture<?>> scheduledPings = new ConcurrentHashMap<>();
+    private final ConcurrentMap<SseEmitter, Future<?>> pingTasks = new ConcurrentHashMap<>();
 
     // Executor for scheduled pings. Size can be tuned depending on load
     // Here we use 2 threads as a reasonable default - measure and adjust as needed
-    private final ScheduledExecutorService scheduler =
-            Executors.newScheduledThreadPool(2);
+//    private final ScheduledExecutorService scheduler =
+//            Executors.newScheduledThreadPool(2);
+//    Executor for ping tasks: virtual thread per task executor (requires VT enabled in JVM)
+    private final ExecutorService pingExecutor;
 
     private static final long DEFAULT_TIMEOUT = 0L; // no timeout, emitter can be detected closed via pings
     private static final long PING_INTERVAL_MS = 5 * 60 * 1000L; // each 5 minutes send a ping to check connection liveness
@@ -62,7 +64,6 @@ public class SseServiceImpl implements SseService {
             }
         }
 
-
         log.info("Added emitter for chat {} (total clients = {})", chatId, set.size());
 
         // lifecycle callbacks
@@ -80,53 +81,104 @@ public class SseServiceImpl implements SseService {
         });
 
         emitter.onError((Throwable e) -> {
-            // We do not need to call emitter.complete() or manually remove the emitter here.
-            // Spring's mechanism guarantees that if an error occurs (onError),
-            // it will be immediately followed by the completion of the lifecycle (onCompletion).
-            // Therefore, all cleanup is performed in a single place: onCompletion
-            log.warn("Emitter error for chat {}: {}", chatId, e.getMessage());
+            cleanupEmitter(chatId, emitter,e);
+            log.info("Emitter error for chat {}: {}", chatId, e.getClass().getSimpleName());
         });
 
-        ScheduledFuture<?> pingFuture = startPing(chatId, emitter);
-        scheduledPings.put(emitter, pingFuture);
+        Future<?> future = startPing(chatId, emitter);
+
+        if (future != null) {
+            pingTasks.put(emitter, future);
+        }
 
         return emitter;
     }
 
-    private ScheduledFuture<?> startPing(UUID chatId, SseEmitter emitter) {
-        ScheduledFuture<?> pingFuture =  scheduler.scheduleAtFixedRate(() -> {
-            try {
-                emitter.send(SseEmitter.event().name(ChatEvent.PING.name()).data("ping"));
+    private void handleEmitterError(UUID chatId, SseEmitter emitter, Exception e) {
+        try {
+            emitter.completeWithError(e);
+        } catch (Exception ex) {
+            // ioexception is expected if emitter is already closed
+            log.debug("completeWithError failed for chat {}: {}", chatId, ex.toString());
+        }
+    }
 
-                log.debug("Sent PING to emitter for chat {}", chatId);
-            } catch (Exception e) {
-                log.warn("Failed to send PING to emitter for chat {} — removing emitter", chatId, e);
-                try { emitter.completeWithError(e); } catch (Exception ex) { log.debug("completeWithError failed: {}", ex.toString()); }
-            }
+    // start periodic pings to keep connection alive and detect closed connections
+    // returns Future representing the ping task
+    // we use a normal ExecutorService with virtual threads
+    private Future<?> startPing(UUID chatId, SseEmitter emitter) {
+        try {
+            return pingExecutor.submit(() -> {
+                try {
+                    Thread.sleep(PING_DELAY_MS);
+                }   catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                }
 
-        }, PING_DELAY_MS, PING_INTERVAL_MS, TimeUnit.MILLISECONDS);
-        return pingFuture;
+               while(!Thread.currentThread().isInterrupted()) {
+                   try {
+                       emitter.send(SseEmitter.event().name(ChatEvent.PING.name()).data("ping"));
+
+                       log.debug("Sent PING to emitter for chat {}", chatId);
+                   } catch (IOException e) {
+                       log.debug("Failed to send to emitter for chat {} — removing emitter", chatId);
+                       handleEmitterError(chatId, emitter, e);
+                       break;
+                   } catch (Exception e) {
+                       log.debug("Unexpected exception sending to emitter for chat {}", chatId);
+                       handleEmitterError(chatId, emitter, e);
+                       break;
+                   }
+                   try {
+                       Thread.sleep(PING_INTERVAL_MS);
+                   } catch (InterruptedException ie) {
+                       // interrupted during sleep -> time to stop
+                       Thread.currentThread().interrupt();
+                       break;
+                   }
+               }
+
+            });
+
+//            return scheduler.scheduleAtFixedRate(() -> {
+//
+//
+//            }, PING_DELAY_MS, PING_INTERVAL_MS, TimeUnit.MILLISECONDS);
+        } catch (RejectedExecutionException rex) {
+            log.warn("Ping executor rejected task for chat {} — cleaning up emitter", chatId);
+            cleanupEmitter(chatId, emitter, rex);
+            return null;
+        }
     }
 
     private void cleanupEmitter(UUID chatId, SseEmitter emitter, Throwable cause) {
-        ScheduledFuture<?> f = scheduledPings.remove(emitter);
+        Future<?> f = pingTasks.remove(emitter);
         if (f != null) {
-            f.cancel(true);
+            try {
+                f.cancel(true);
+            } catch (Exception ex) {
+                log.debug("Failed to cancel ping for chat {}: {}", chatId, ex.toString());
+            }
         }
 
         CopyOnWriteArraySet<SseEmitter> set = emitters.get(chatId);
         if (set != null) {
+            // remove emitter
             set.remove(emitter);
+
             log.info("Removed emitter for chat {} (remaining = {})", chatId, set.size());
             if (set.isEmpty()) {
-                // remove the empty set to free memory
-                emitters.remove(chatId);
-                // last client disconnected -> unbind chat
-                try {
-                    chatBindingService.unBindChat(chatId);
-                    log.info("Unbound chat {} from exchange (no local subscribers)", chatId);
-                } catch (Exception e) {
-                    log.error("Failed to unbind chat {} after last emitter removal", chatId, e);
+                // remove the empty set to free memory, using remove(key, value) to ensure no new emitters were added meanwhile
+                boolean removed =  emitters.remove(chatId, set);
+
+                if (removed) {
+                    try {
+                        // last client disconnected -> unbind chat
+                        chatBindingService.unBindChat(chatId);
+                        log.debug("Unbound chat {} from exchange (no local subscribers)", chatId);
+                    } catch (Exception e) {
+                        log.debug("Failed to unbind chat {} after last emitter removal", chatId);
+                    }
                 }
             }
         }
@@ -148,15 +200,14 @@ public class SseServiceImpl implements SseService {
                         .id(id)
                         .name(eventName.name())
                         .data(message));
+            } catch (IOException e) {
+
+                log.debug("Failed to send to emitter for chat {} — removing emitter", chatId);
+                handleEmitterError(chatId, emitter, e);
             } catch (Exception e) {
-                log.warn("Failed to send to emitter for chat {} — removing emitter", chatId, e);
-                try { emitter.completeWithError(e); } catch (Exception ex) { log.debug("completeWithError failed: {}", ex.toString()); }
+                log.debug("Unexpected exception sending to emitter for chat {}", chatId);
+                handleEmitterError(chatId, emitter, e);
             }
         }
-    }
-
-    @PreDestroy
-    public void shutdown() {
-        scheduler.shutdownNow();
     }
 }

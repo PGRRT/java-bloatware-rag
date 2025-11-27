@@ -17,6 +17,7 @@ public class ChatBindingServiceImpl implements ChatBindingService {
     private final Queue instanceQueue;
     private final TopicExchange topicExchange;
 
+    @Override
     public void bindChat(UUID chatId) {
         String routingKey = "chat." + chatId;
         Binding binding = BindingBuilder.bind(instanceQueue)
@@ -31,6 +32,7 @@ public class ChatBindingServiceImpl implements ChatBindingService {
         }
     }
 
+    @Override
     public void unBindChat(UUID chatId) {
         String routingKey = "chat." + chatId;
         Binding binding = BindingBuilder.bind(instanceQueue).to(topicExchange).with(routingKey);

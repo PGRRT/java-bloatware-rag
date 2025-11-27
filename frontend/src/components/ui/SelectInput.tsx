@@ -83,6 +83,7 @@ const SelectInput = ({
           {options?.map((option) => {
             return (
               <button
+                key={option.value}
                 onClick={() => {
                   onChange(option.value);
                   setOpen(false);

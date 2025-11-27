@@ -31,6 +31,7 @@ public class MessageServiceImpl implements MessageService {
     private final ApplicationEventPublisher applicationEventPublisher;
     private final RabbitTemplate rabbitTemplate;
 
+    @Override
     public MessageResponse getMessageById(UUID chatId, UUID messageId) {
         Message message = messageRepository.findById(messageId).orElseThrow(() -> {
             log.error("Message with id {} not found in chat {}", messageId, chatId);
@@ -40,6 +41,7 @@ public class MessageServiceImpl implements MessageService {
         return messageMapper.toMessageResponse(message);
     }
 
+    @Override
     @Transactional
     public CreateMessageResponse createMessage(UUID chatId, CreateMessageRequest createMessageRequest) {
         Chat chat = chatService.findById(chatId);
@@ -51,6 +53,7 @@ public class MessageServiceImpl implements MessageService {
         return messageMapper.toCreateMessageResponse(save);
     }
 
+    @Override
     @Transactional
     public void saveBotMessage(UUID chatId, String generatedResponse) {
         createMessage(chatId, new CreateMessageRequest(generatedResponse, Sender.BOT));
@@ -59,6 +62,7 @@ public class MessageServiceImpl implements MessageService {
         applicationEventPublisher.publishEvent(new BotMessageEvent(chatId, generatedResponse));
     }
 
+    @Override
     @Transactional
     public void deleteMessage(UUID chatId, UUID messageId) {
         Message message = messageRepository.findById(messageId).orElseThrow(() -> {
