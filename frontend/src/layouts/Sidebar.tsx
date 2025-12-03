@@ -96,7 +96,7 @@ export default function Sidebar() {
           css`
             background-color: ${colorPalette.background};
 
-            border-bottom: 1px solid ${colorPalette.strokePrimary};
+            // border-bottom: 1px solid ${colorPalette.strokePrimary};
           `}
         `}
       >

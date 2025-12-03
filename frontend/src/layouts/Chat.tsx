@@ -19,10 +19,9 @@ import { useParams } from "react-router-dom";
 
 const Chat = () => {
   const { chatId } = useParams();
-  console.log("chatId", chatId);
 
   return (
-    <ContentWrapper justify="center" position="relative" height="100%">
+    <ContentWrapper justify="center" position="relative" height="100%" padding="0 20px">
       {chatId ? (
         // We are in a specific chat
         <ChatContainer key={chatId} chatId={chatId} />

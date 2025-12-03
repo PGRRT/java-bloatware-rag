@@ -6,6 +6,7 @@ import useViewport from "@/hooks/useViewport";
 import { css } from "@emotion/css";
 import { Button } from "@mantine/core";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 const ragOptions = [
   {
@@ -37,7 +38,7 @@ const Navbar = () => {
           height: ${navbarHeight}px;
           max-height: ${navbarHeight}px;
 
-          border-bottom: 1px solid ${colorPalette.strokePrimary};
+          // border-bottom: 1px solid ${colorPalette.strokePrimary};
 
           background-color: ${colorPalette.background};
           position: sticky;
@@ -48,11 +49,16 @@ const Navbar = () => {
         <SelectInput value={rag} onChange={setRag} options={ragOptions} />
 
         <ContentWrapper direction="row" gap="10px">
-          <Button>Sign in</Button>
-          {isMobile ? null : <Button variant="outline">Sign up</Button>}
+          <Button component={Link} to="/sign-in">
+            Sign in
+          </Button>
+          {isMobile ? null : (
+            <Button variant="outline" component={Link} to="/sign-up">
+              Sign up
+            </Button>
+          )}
         </ContentWrapper>
       </ContentWrapper>
-      {/* <MantineExamples /> */}
     </>
   );
 };
