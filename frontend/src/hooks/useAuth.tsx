@@ -40,7 +40,6 @@ export const useAuth = (): UseAuthReturn => {
   const navigate = useNavigate();
 
   const { user, loading: isLoading, error } = useUserSWR();
-  console.log("Logged user", user);
 
   const login = useCallback(
     async (credentials: Credentials) => {
@@ -72,12 +71,6 @@ export const useAuth = (): UseAuthReturn => {
     [dispatch]
   );
 
-  //  const data = await showToast.async.withLoading(() => userApi.createOtp(userEmail), {
-  //       loadingMessage: "Sending verification email...",
-  //       successMessage: `Verification email sent to ${userEmail}!`,
-  //       errorMessage: "Failed to send verification email",
-  //     });
-
   const createOtp = useCallback(
     async (email: string) => {
       const response = await showToast.async.withLoading(
@@ -95,12 +88,21 @@ export const useAuth = (): UseAuthReturn => {
   );
 
   const logout = useCallback(async (): Promise<void> => {
-    try {
-      await dispatch(logoutUser()).unwrap();
-      navigate("/signin");
-    } catch (error) {
+    const response = await showToast.async.withLoading(
+      () => dispatch(logoutUser()).unwrap(),
+      {
+        loadingMessage: "Logging out...",
+        successMessage: "Logged out successfully",
+        errorMessage: (err) => err || "Logout failed",
+      }
+    );
+
+    const { data, error } = response ?? {};
+    if (data) {
+      navigate("/sign-in");
+    } else if (error) {
       dispatch(resetAuth());
-      navigate("/signin");
+      navigate("/sign-in");
     }
   }, [dispatch, navigate]);
 

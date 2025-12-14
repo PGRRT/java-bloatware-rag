@@ -2,6 +2,7 @@ import ContentWrapper from "@/components/ui/ContentWrapper";
 import SelectInput from "@/components/ui/SelectInput";
 import colorPalette from "@/constants/colorPalette";
 import { styles } from "@/constants/styles";
+import { useAuth } from "@/hooks/useAuth";
 import useViewport from "@/hooks/useViewport";
 import { css } from "@emotion/css";
 import { Button } from "@mantine/core";
@@ -25,6 +26,9 @@ const Navbar = () => {
   const [rag, setRag] = useState(ragOptions[0].value);
   const { isMobile } = useViewport();
   const margin = isMobile ? "0 0 0 60px" : "0";
+  const { user } = useAuth();
+  console.log("user in navbar", user);
+
   return (
     <>
       <ContentWrapper
@@ -49,13 +53,19 @@ const Navbar = () => {
         <SelectInput value={rag} onChange={setRag} options={ragOptions} />
 
         <ContentWrapper direction="row" gap="10px">
-          <Button component={Link} to="/sign-in">
-            Sign in
-          </Button>
-          {isMobile ? null : (
-            <Button variant="outline" component={Link} to="/sign-up">
-              Sign up
-            </Button>
+          {user ? (
+            <div>Welcome, {user.email}!</div>
+          ) : (
+            <>
+              <Button component={Link} to="/sign-in">
+                Sign in
+              </Button>
+              {isMobile ? null : (
+                <Button variant="outline" component={Link} to="/sign-up">
+                  Sign up
+                </Button>
+              )}
+            </>
           )}
         </ContentWrapper>
       </ContentWrapper>

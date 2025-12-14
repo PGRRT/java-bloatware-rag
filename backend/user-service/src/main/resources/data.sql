@@ -1,8 +1,0 @@
-INSERT INTO roles (id, name) VALUES (1, 'USER')
-ON CONFLICT (id) DO NOTHING;
-
-INSERT INTO roles (id, name) VALUES (2, 'MODERATOR')
-ON CONFLICT (id) DO NOTHING;
-
-INSERT INTO roles (id, name) VALUES (3, 'ADMIN')
-ON CONFLICT (id) DO NOTHING;
