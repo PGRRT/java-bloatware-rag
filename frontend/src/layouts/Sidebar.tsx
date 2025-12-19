@@ -50,7 +50,7 @@ export default function Sidebar() {
         color: white;
         display: flex;
         flex-direction: column;
-
+        max-height: 100vh;
         position: sticky;
         top: 0;
 

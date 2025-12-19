@@ -5,9 +5,10 @@ import colorPalette from "@/constants/colorPalette";
 import { styles } from "@/constants/styles";
 import { typography } from "@/constants/typography";
 import { css, cx } from "@emotion/css";
-import { Tooltip, UnstyledButton, Text, Button } from "@mantine/core";
-import { SettingsIcon, SquarePen } from "lucide-react";
-import { useState } from "react";
+import { Tooltip, UnstyledButton, Text, Button, Loader } from "@mantine/core";
+import { SearchIcon, SettingsIcon, SquarePen } from "lucide-react";
+import { useState, useRef, useCallback } from "react";
+import { useVirtualizer } from "@tanstack/react-virtual";
 
 const generalOptions = [
   {
@@ -20,7 +21,7 @@ const generalOptions = [
   {
     id: 2,
     label: "Search chats",
-    icon: SettingsIcon,
+    icon: SearchIcon,
     action: () => console.log("Search chats clicked"),
     isDisabled: true,
   },
@@ -42,7 +43,43 @@ const defaultChat = [
 ];
 
 const SidebarContent = ({ expanded }) => {
-  const [chats, setChats] = useState(defaultChat);
+  // Zamień to na swój hook gdy będzie gotowy endpoint:
+  // const { chats, isLoading, isLoadingMore, loadMore, isReachingEnd } = useInfiniteChats();
+
+  // Tymczasowo dummy data (symulacja 150 chatów)
+  const [chats, setChats] = useState(
+    Array.from({ length: 150 }, (_, i) => ({
+      id: i + 1,
+      label: `Chat ${i + 1} - ${
+        ["AI Discussion", "ML Research", "Neural Networks", "Data Science"][
+          i % 4
+        ]
+      }`,
+    }))
+  );
+
+  const parentRef = useRef<HTMLDivElement>(null);
+
+  const rowVirtualizer = useVirtualizer({
+    count: chats.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 42, // wysokość jednego itemu (padding + tekst)
+    overscan: 5, // renderuj 5 dodatkowych itemów poza widokiem
+  });
+
+  // Detect when user scrolls near bottom to trigger loadMore
+  const lastItemRef = useCallback((node: HTMLDivElement | null) => {
+    if (!node) return;
+
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        // loadMore(); // Odkomentuj gdy użyjesz useInfiniteChats
+      }
+    });
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
 
   if (!expanded) {
     return null;
@@ -54,6 +91,8 @@ const SidebarContent = ({ expanded }) => {
       direction="column"
       customCss={css`
         padding: 5px;
+        height: 100%;
+        overflow: hidden;
       `}
     >
       <ContentWrapper>
@@ -65,63 +104,72 @@ const SidebarContent = ({ expanded }) => {
             action={item.action}
             isDisabled={item.isDisabled}
           />
-          // <ContentWrapper
-          //   key={item.label}
-          //   gap="10px"
-          //   align="center"
-          //   customCss={css`
-          //     transition: background 0.2s;
-          //     padding: 10px;
-          //     border-radius: ${styles.borderRadius.small};
-          //     width: 100%;
-          //     color: ${colorPalette.text};
-          //     &:hover {
-          //       background: ${colorPalette.backgroundTertiary};
-          //     }
-
-          //     ${item.isDisabled &&
-          //     css`
-          //       opacity: 0.5;
-          //       pointer-events: none;
-          //     `}
-          //   `}
-          //   as="button"
-          //   onClick={item.action}
-          // >
-          //   <IconWrapper size={14} Icon={item.icon} />
-
-          //   <span className={cx(typography.textM)}>{item.label}</span>
-          // </ContentWrapper>
         ))}
       </ContentWrapper>
 
-      <ContentWrapper>
-        <ContentWrapper padding="8px 10px">
-          <span
-            className={cx(
-              typography.textM,
-              css`
-                display: block;
-                color: ${colorPalette.textMuted};
-              `
-            )}
-          >
-            Your chats
-          </span>
-        </ContentWrapper>
-
-        {chats.map((chat) => (
-          <SidebarChatItem
-            key={chat.id}
-            label={chat.label}
-            action={() => console.log(`Chat ${chat.id} clicked`)}
-          />
-        ))}
+      <ContentWrapper padding="8px 10px">
+        <span
+          className={cx(
+            typography.textM,
+            css`
+              display: block;
+              color: ${colorPalette.textMuted};
+            `
+          )}
+        >
+          Your chats
+        </span>
       </ContentWrapper>
 
-     
+      <div
+        ref={parentRef}
+        className={css`
+          flex: 1;
+          overflow-y: auto;
+          overflow-x: hidden;
 
-      <span></span>
+        
+        `}
+      >
+        <div
+          style={{
+            height: `${rowVirtualizer.getTotalSize()}px`,
+            width: "100%",
+            position: "relative",
+          }}
+        >
+          {rowVirtualizer.getVirtualItems().map((virtualItem) => {
+            const chat = chats[virtualItem.index];
+            const isLast = virtualItem.index === chats.length - 1;
+
+            return (
+              <div
+                key={virtualItem.key}
+                ref={isLast ? lastItemRef : undefined}
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  width: "100%",
+                  transform: `translateY(${virtualItem.start}px)`,
+                }}
+              >
+                <SidebarChatItem
+                  label={chat.label}
+                  action={() => console.log(`Chat ${chat.id} clicked`)}
+                />
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Loader gdy ładuje się więcej - odkomentuj gdy użyjesz useInfiniteChats */}
+        {/* {isLoadingMore && (
+          <ContentWrapper justify="center" padding="10px">
+            <Loader size="sm" />
+          </ContentWrapper>
+        )} */}
+      </div>
     </ContentWrapper>
   );
 };
