@@ -1,11 +1,5 @@
 import React, { useState } from "react";
-import {
-  Tooltip,
-  UnstyledButton,
-  Text,
-  ActionIcon,
-  Button,
-} from "@mantine/core";
+
 import { css } from "@emotion/css";
 import { Menu, TextAlignJustify, X } from "lucide-react";
 import colorPalette from "@/constants/colorPalette";
@@ -13,6 +7,9 @@ import IconWrapper from "@/components/ui/IconWrapper";
 import { styles } from "@/constants/styles";
 import useViewport from "@/hooks/useViewport";
 import { navbarHeight } from "@/layouts/Navbar";
+import Logo from "@/components/ui/Logo";
+import ContentWrapper from "@/components/ui/ContentWrapper";
+import SidebarContent from "@/components/sidebar/SidebarContent";
 
 const buttonsStyle = css`
   display: flex;
@@ -40,9 +37,7 @@ export default function Sidebar() {
   const { isMobile } = useViewport();
   const sidebarWidth = expanded ? activeSidebarWidth : notActiveSidebarWidth;
 
-  const menuItems = [
-    // to be added
-  ];
+ 
 
   return (
     <div
@@ -53,10 +48,8 @@ export default function Sidebar() {
         background-color: ${colorPalette.backgroundSecondary};
         border-right: 1px solid ${colorPalette.strokePrimary};
         color: white;
-        // min-height: 100vh;
         display: flex;
         flex-direction: column;
-        // padding: 1rem;
 
         position: sticky;
         top: 0;
@@ -148,37 +141,34 @@ export default function Sidebar() {
         >
           <IconWrapper size={24} Icon={X} color={colorPalette.accent} />
         </div>
+
+        <ContentWrapper
+          customCss={css`
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            margin-left: 15px;
+            // height: 35px;
+            // width: 35px;
+
+            opacity: 0;
+            transition: all 0.2s;
+            pointer-events: none;
+            ${expanded &&
+            css`
+              display: block;
+              opacity: 1;
+              pointer-events: auto;
+            `}
+          `}
+        >
+          <Logo  height={32} width={"fit-content"} />
+        </ContentWrapper>
       </div>
 
-      {/* Menu items */}
-      {menuItems.map((item) => (
-        <Tooltip
-          key={item.label}
-          label={item.label}
-          position="right"
-          disabled={expanded}
-          withArrow
-        >
-          <UnstyledButton
-            onClick={() => console.log(item.label)}
-            className={css`
-              width: 100%;
-              display: flex;
-              align-items: center;
-              gap: 12px;
-              padding: 8px;
-              border-radius: 6px;
-              cursor: pointer;
-              &:hover {
-                background-color: rgba(255, 255, 255, 0.1);
-              }
-            `}
-          >
-            {item.icon}
-            {expanded && <Text>{item.label}</Text>}
-          </UnstyledButton>
-        </Tooltip>
-      ))}
+      <SidebarContent expanded={expanded} />
+     
     </div>
   );
 }

@@ -46,7 +46,7 @@ const Chat = () => {
             align="center"
             gap="10px"
           >
-            <Logo size={55} />
+            <Logo height={60}  />
             <h3 className={cx(typography.textTitle, typography.textTitleTai)}>
               MedAI
             </h3>
