@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { ChatEvent } from "@/api/enums/ChatEvent";
 import type { MessageResponse } from "@/types/message";
 import { Sender, type SenderType } from "@/api/enums/Sender";
+import type { UUID } from "@/types";
 
 const formMessage = ({
   id,
@@ -122,7 +123,7 @@ const connectSse = ({
   return { close };
 };
 
-const useChat = ({ chatId }: { chatId?: UUID }): UseChat => {
+const useChat = ({ chatId }: { chatId?: UUID }) => {
   const messages = useAppSelector((state) => state.message.messages);
   const dispatch = useAppDispatch();
 

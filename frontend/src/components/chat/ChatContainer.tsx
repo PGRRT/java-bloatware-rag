@@ -16,7 +16,6 @@ const chatPadding = 12;
 const additionalSpace = 30;
 const ChatContainer = ({ chatId }: { chatId: UUID }) => {
   const { messages } = useChat({ chatId });
-  console.log("messages", messages);
 
   return (
     <ContentWrapper

@@ -51,19 +51,20 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<AuthResponse<UserResponse>> refresh(
+    public ResponseEntity<String> refresh(
             @CookieValue(required = false, name = "refreshToken") String refreshToken) {
 
-        UserWithCookie userWithCookie = authService.refreshToken(refreshToken);
+        String accessToken = authService.refreshToken(refreshToken);
 
-        AuthResponse<UserResponse> authResponse = AuthResponse.<UserResponse>builder()
-                .accessToken(userWithCookie.getAccessToken())
-                .user(userWithCookie.getUser())
-                .build();
-
-        return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, userWithCookie.getRefreshToken().toString())
-                .body(authResponse);
+        return ResponseEntity.ok().body(accessToken);
+//        AuthResponse<UserResponse> authResponse = AuthResponse.<UserResponse>builder()
+//                .accessToken(userWithCookie.getAccessToken())
+//                .user(userWithCookie.getUser())
+//                .build();
+//
+//        return ResponseEntity.ok()
+////                .header(HttpHeaders.SET_COOKIE, userWithCookie.getRefreshToken().toString())
+//                .body(authResponse);
     }
 
     @PostMapping("/register")

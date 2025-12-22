@@ -3,12 +3,18 @@ export interface Credentials {
   password: string;
 }
 
-export interface User extends Credentials {
-  id?: number;
-  role: 'USER' | 'ADMIN' | 'MODERATOR';
+export interface User {
+  id?: string;
+  email: string;
+  role: string;
   active: boolean;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface AuthResponse {
+  user: User;
+  accessToken: string;
 }
 
 // export interface RegisterData extends User {

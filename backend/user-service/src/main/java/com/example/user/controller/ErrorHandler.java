@@ -92,18 +92,40 @@ public class ErrorHandler {
     @ExceptionHandler({
             JwtException.class,
             UsernameNotFoundException.class,
-            TokenRefreshException.class,
-            UserNotActiveException.class,
-            OtpInvalidException.class,
+            TokenRefreshException.class
     })
-    public ResponseEntity<ApiErrorResponse> handleCustomExceptions(RuntimeException e) {
-        log.error("Error: {}", e.getMessage());
+    public ResponseEntity<ApiErrorResponse> handleAuthenticationExceptions(RuntimeException e) {
+        // Authentication related exceptions - invalid tokens, user not found, token refresh issues
+        log.error("Authentication exception: {} - {}", e.getClass().getSimpleName(), e.getMessage(), e);
+
+        ApiErrorResponse error = ApiErrorResponse.builder()
+                .status(HttpStatus.UNAUTHORIZED.value())
+                .message(e.getMessage() != null ? e.getMessage() : "Authentication failed")
+                .build();
+        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(UserNotActiveException.class)
+    public ResponseEntity<ApiErrorResponse> handleUserNotActiveException(UserNotActiveException e) {
+        // User exists but is not active - authorization issue
+        log.error("User not active exception: {}", e.getMessage(), e);
+
+        ApiErrorResponse error = ApiErrorResponse.builder()
+                .status(HttpStatus.FORBIDDEN.value())
+                .message(e.getMessage() != null ? e.getMessage() : "User account is not active")
+                .build();
+        return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(OtpInvalidException.class)
+    public ResponseEntity<ApiErrorResponse> handleOtpInvalidException(OtpInvalidException e) {
+        // Invalid OTP code provided
+        log.error("OTP validation exception: {}", e.getMessage(), e);
+
         ApiErrorResponse error = ApiErrorResponse.builder()
                 .status(HttpStatus.BAD_REQUEST.value())
-                .message(e.getMessage())
+                .message(e.getMessage() != null ? e.getMessage() : "Invalid OTP code")
                 .build();
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
-
-
 }
