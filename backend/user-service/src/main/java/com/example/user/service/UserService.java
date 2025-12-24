@@ -8,7 +8,7 @@ import com.example.user.domain.entities.User;
 import com.example.user.mapper.UserMapper;
 import com.example.user.repository.UserRepository;
 import com.example.user.security.JwtService;
-import com.example.user.security.UserPrincipal;
+import com.example.common.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;

@@ -1,6 +1,6 @@
 package com.example.user.config;
 
-import com.example.user.security.JwtAuthenticationFilter;
+import com.example.common.security.JwtAuthenticationFilter;
 import com.example.user.security.TokenBlacklistFilter;
 import com.example.user.service.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
@@ -14,13 +14,10 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
-import org.springframework.web.cors.CorsConfigurationSource;
 
 import java.util.List;
 
@@ -34,10 +31,9 @@ public class SecurityConfig {
     private final CustomUserDetailsService customUserDetailsService;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, CorsConfigurationSource corsConfigurationSource) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-//                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .csrf(csrf -> csrf.disable())
+                .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement((session) -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
@@ -50,7 +46,7 @@ public class SecurityConfig {
                 // According to spring security docs, it add authentication filter after LogoutFilter
                 // https://docs.spring.io/spring-security/reference/servlet/architecture.html#servlet-filters-review
                 .addFilterAfter(jwtAuthenticationFilter, LogoutFilter.class)
-                .addFilterAfter(tokenBlacklistFilter, JwtAuthenticationFilter.class)
+                .addFilterAfter(tokenBlacklistFilter, com.example.common.security.JwtAuthenticationFilter.class)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable); // Disable HTTP Basic auth
 

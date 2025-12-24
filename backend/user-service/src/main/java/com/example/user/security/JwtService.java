@@ -1,11 +1,10 @@
 package com.example.user.security;
 
+import com.example.common.dto.JwtUserClaims;
 import com.example.user.domain.dto.auth.AccessRefreshToken;
-import com.example.user.domain.dto.auth.JwtUserClaims;
 import com.example.user.repository.UserRepository;
 import com.example.user.service.CookieService;
 import io.jsonwebtoken.*;
-import io.jsonwebtoken.security.Keys;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -14,34 +13,22 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
 
-import java.nio.charset.StandardCharsets;
-import java.security.Key;
-import java.util.Date;
-import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @Getter
 @Setter
 @RequiredArgsConstructor
-public class JwtService {
+public class JwtService extends com.example.common.security.JwtService {
     private final CookieService cookieService;
     private final UserRepository userRepository;
-
-    @Value("${jwt.secret}")
-    private String jwtSecret;
 
     @Value("${jwt.accessTokenExpirationMs}")
     private int jwtAccessTokenExpirationMs;
 
     @Value("${jwt.refreshTokenExpirationMs}")
     private int jwtRefreshTokenExpirationMs;
-
-    private Key getSigningKey() {
-        return Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
-    }
 
     public AccessRefreshToken createSessionCookies(
             UUID id,
@@ -72,69 +59,20 @@ public class JwtService {
                 .subject(userClaims.userId().toString())
                 .claim("email", userClaims.email())
                 .claim("role", userClaims.role())
-                .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + expirationMs))
+                .issuedAt(new java.util.Date(System.currentTimeMillis()))
+                .expiration(new java.util.Date(System.currentTimeMillis() + expirationMs))
                 .signWith(getSigningKey())
                 .issuer("signaro.com")
                 .id(UUID.randomUUID().toString())
                 .compact();
     }
 
-   public String generateAccessToken(JwtUserClaims userClaims) {
+    public String generateAccessToken(JwtUserClaims userClaims) {
         return generateToken(userClaims, jwtAccessTokenExpirationMs);
-   }
+    }
 
     public String generateRefreshToken(JwtUserClaims userClaims) {
-          return generateToken(userClaims, jwtRefreshTokenExpirationMs);
-    }
-
-    public Claims getClaims(String token) {
-        Claims payload = Jwts.parser().setSigningKey(getSigningKey()).build().parseClaimsJws(token).getBody();
-        return payload;
-    }
-
-    public String getUsernameFromToken(String token) {
-        return getClaims(token).getSubject();
-    }
-
-    public String getEmailFromToken(String token) {
-        return (String) getClaims(token).get("email");
-    }
-
-    public String getRoleFromToken(String token) {
-        return (String) getClaims(token).get("role");
-    }
-
-    public Set<String> getAttributesFromToken(String token) {
-        Object attributes = getClaims(token).get("attributes");
-        if (attributes instanceof Set<?> attrs) {
-            return attrs.stream().map(Object::toString).collect(Collectors.toSet());
-        }
-        return Set.of();
-    }
-
-    public String getIdFromToken(String token) {
-        return getClaims(token).getId();
-    }
-
-
-    public boolean isTokenInvalid(String token) {
-        try {
-            Claims claims = getClaims(token);
-
-            return claims.getExpiration().before(new Date());
-        } catch (SecurityException e) {
-            log.error("Invalid JWT signature: {}", e.getMessage());
-        } catch (MalformedJwtException e) {
-            log.error("Invalid JWT token: {}", e.getMessage());
-        } catch (ExpiredJwtException e) {
-            log.error("Expired JWT token: {}", e.getMessage());
-        } catch (UnsupportedJwtException e) {
-            log.error("Unsupported JWT token: {}", e.getMessage());
-        } catch (IllegalArgumentException e) {
-            log.error("JWT claims string is empty: {}", e.getMessage());
-        }
-        return true;
+        return generateToken(userClaims, jwtRefreshTokenExpirationMs);
     }
 
     public String getAccessToken(JwtUserClaims jwtUserClaims) {

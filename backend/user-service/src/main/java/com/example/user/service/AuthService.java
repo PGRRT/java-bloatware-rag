@@ -1,6 +1,6 @@
 package com.example.user.service;
 
-import com.example.user.domain.dto.auth.JwtUserClaims;
+import com.example.common.dto.JwtUserClaims;
 import com.example.user.exceptions.InvalidTokenException;
 import com.example.user.exceptions.TokenRefreshException;
 import com.example.user.mapper.UserMapper;

@@ -46,6 +46,11 @@
 	</dependencyManagement>
 	<dependencies>
 		<dependency>
+			<groupId>com.example</groupId>
+			<artifactId>common-library</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+		<dependency>
 			<groupId>io.soabase.record-builder</groupId>
 			<artifactId>record-builder-core</artifactId>
 			<version>51</version>
@@ -99,24 +104,6 @@
 <!--			<artifactId>spring-boot-starter-data-redis</artifactId>-->
 <!--			<version>3.5.4</version>-->
 <!--		</dependency>-->
-
-		<dependency>
-			<groupId>io.jsonwebtoken</groupId>
-			<artifactId>jjwt-api</artifactId>
-			<version>0.13.0</version>
-		</dependency>
-		<dependency>
-			<groupId>io.jsonwebtoken</groupId>
-			<artifactId>jjwt-impl</artifactId>
-			<version>0.13.0</version>
-			<scope>runtime</scope>
-		</dependency>
-		<dependency>
-			<groupId>io.jsonwebtoken</groupId>
-			<artifactId>jjwt-jackson</artifactId>
-			<version>0.13.0</version>
-			<scope>runtime</scope>
-		</dependency>
 
 
 		<dependency>

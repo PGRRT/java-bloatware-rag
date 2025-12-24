@@ -2,7 +2,7 @@ package com.example.user.service;
 
 import com.example.user.domain.entities.User;
 import com.example.user.repository.UserRepository;
-import com.example.user.security.UserPrincipal;
+import com.example.common.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
