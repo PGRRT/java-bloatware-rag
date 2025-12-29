@@ -8,12 +8,21 @@ restart-dev:
 	docker compose -f compose.dev.yaml down
 	docker compose -f compose.dev.yaml up
 
+# add eureka service if needed
+restart-backend-dev:
+	docker compose -f compose.dev.yaml restart user-service chat-service gateway
+
 stop-dev:
 	docker compose -f compose.dev.yaml down
 
+# add eureka service if needed
 rebuild-backend-dev:
 	docker compose -f compose.dev.yaml stop user-service chat-service gateway
 	docker compose -f compose.dev.yaml build user-service chat-service gateway
+
+rebuild-user-dev:
+	docker compose -f compose.dev.yaml stop user-service
+	docker compose -f compose.dev.yaml build user-service 
 
 rebuild-api-dev:
 	docker compose -f compose.dev.yaml stop api
@@ -61,8 +70,9 @@ logs-api-dev:
 logs-frontend-dev:
 	docker compose -f compose.dev.yaml logs -f frontend
 
+
 logs-backend-dev:
-	docker compose -f compose.dev.yaml logs -f user-service chat-service gateway
+	docker compose -f compose.dev.yaml logs -f eureka user-service chat-service gateway
 
 logs-dev-all:
 	docker compose -f compose.dev.yaml logs -f

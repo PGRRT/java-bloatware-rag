@@ -1,6 +1,6 @@
 package com.example.user.config;
 
-import com.example.common.security.JwtAuthenticationFilter;
+import com.example.common.jwt.filter.JwtAuthenticationFilter;
 import com.example.user.security.TokenBlacklistFilter;
 import com.example.user.service.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +18,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
-
 import java.util.List;
 
 @Slf4j
@@ -46,7 +45,7 @@ public class SecurityConfig {
                 // According to spring security docs, it add authentication filter after LogoutFilter
                 // https://docs.spring.io/spring-security/reference/servlet/architecture.html#servlet-filters-review
                 .addFilterAfter(jwtAuthenticationFilter, LogoutFilter.class)
-                .addFilterAfter(tokenBlacklistFilter, com.example.common.security.JwtAuthenticationFilter.class)
+                .addFilterAfter(tokenBlacklistFilter, JwtAuthenticationFilter.class)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable); // Disable HTTP Basic auth
 

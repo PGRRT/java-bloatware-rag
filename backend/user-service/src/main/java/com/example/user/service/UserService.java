@@ -7,8 +7,8 @@ import com.example.user.domain.entities.Role;
 import com.example.user.domain.entities.User;
 import com.example.user.mapper.UserMapper;
 import com.example.user.repository.UserRepository;
-import com.example.user.security.JwtService;
-import com.example.common.security.UserPrincipal;
+import com.example.common.jwt.service.JwtService;
+import com.example.common.jwt.dto.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -103,8 +103,10 @@ public class UserService {
                 .id(principal.id())
                 .email(principal.email())
                 .role(role)
+                .active(principal.isEnabled())
                 .build();
-//                userMapper.toDtoFromPrincipal(principal);
+    }
+//        userMapper.toDtoFromPrincipal(principal);
 
 //        User user = userRepository.findUserWithRoleByEmail(registerRequestDto.getEmail()).orElse(null);
 //        // User user =
@@ -116,6 +118,4 @@ public class UserService {
 //        }
 //
 //        return userMapper.toDto(user);
-    }
-
 }

@@ -15,7 +15,6 @@ import java.util.List;
 @Configuration
 public class CorsConfig {
 
-    private static final Logger log = LoggerFactory.getLogger(CorsConfig.class);
     @Value("${app.allowed-origin}")
     private String allowedOrigin;
 
@@ -26,7 +25,7 @@ public class CorsConfig {
 
         config.setAllowedMethods(List.of(
                 "GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"
-        )); // GET, POST, PUT, DELETE, itp.
+        ));
         config.addAllowedHeader("*");
         config.setAllowCredentials(true);
 

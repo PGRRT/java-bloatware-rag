@@ -1,11 +1,11 @@
 package com.example.user.service;
 
-import com.example.common.dto.JwtUserClaims;
+import com.example.common.jwt.dto.JwtUserClaims;
 import com.example.user.exceptions.InvalidTokenException;
 import com.example.user.exceptions.TokenRefreshException;
 import com.example.user.mapper.UserMapper;
 import com.example.user.repository.UserRepository;
-import com.example.user.security.JwtService;
+import com.example.common.jwt.service.JwtService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
@@ -13,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-
+import com.example.common.jwt.service.CookieService;
 import java.time.Duration;
 import java.util.UUID;
 
@@ -21,7 +21,6 @@ import java.util.UUID;
 @Slf4j
 @RequiredArgsConstructor
 public class AuthService {
-
     private final JwtService jwtService;
     private final UserRepository userRepository;
     private final CookieService cookieService;

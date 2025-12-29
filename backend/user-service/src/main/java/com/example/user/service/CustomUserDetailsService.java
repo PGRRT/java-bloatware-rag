@@ -2,7 +2,7 @@ package com.example.user.service;
 
 import com.example.user.domain.entities.User;
 import com.example.user.repository.UserRepository;
-import com.example.common.security.UserPrincipal;
+import com.example.common.jwt.dto.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,7 +25,9 @@ public class CustomUserDetailsService implements UserDetailsService {
         return new UserPrincipal(
                 user.getId(),
                 user.getEmail(),
-                List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole()))
+                user.getPassword(),
+                user.isActive(),
+                List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().getName()))
         );
     }
 }

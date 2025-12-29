@@ -1,15 +1,15 @@
 package com.example.user.controller;
 
-import com.example.user.domain.dto.auth.AccessRefreshToken;
+import com.example.common.jwt.dto.AccessRefreshToken;
 import com.example.user.domain.dto.auth.response.AuthResponse;
 import com.example.user.domain.dto.auth.response.UserWithCookie;
 import com.example.user.domain.dto.user.request.LoginUserRequest;
 import com.example.user.domain.dto.user.request.RegisterUserRequest;
 import com.example.user.domain.dto.user.response.UserResponse;
 import com.example.user.exceptions.OtpInvalidException;
-import com.example.user.security.JwtService;
+import com.example.common.jwt.service.JwtService;
 import com.example.user.service.AuthService;
-import com.example.user.service.CookieService;
+import com.example.common.jwt.service.CookieService;
 import com.example.user.service.OtpService;
 import com.example.user.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;

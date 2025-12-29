@@ -1,6 +1,6 @@
 package com.example.chat.config;
 
-import com.example.common.security.JwtAuthenticationFilter;
+import com.example.common.jwt.filter.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -29,8 +29,9 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(publicUrls.toArray(String[]::new)).permitAll()
-                        .anyRequest().authenticated()
+//                        .requestMatchers(publicUrls.toArray(String[]::new)).permitAll()
+//                        .anyRequest().authenticated()
+                                .anyRequest().permitAll()
                 )
                 .addFilterAfter(jwtAuthenticationFilter, LogoutFilter.class)
                 .formLogin(AbstractHttpConfigurer::disable)

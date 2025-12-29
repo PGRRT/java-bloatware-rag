@@ -35,10 +35,8 @@ export const initializeAuth = async (): Promise<boolean> => {
   try {
     console.log("[Auth] Initializing authentication...");
     const response = await backendApi.post("/api/v1/auth/refresh");
-
-    // Zapisz token w store (response.data to AuthResponse)
-    store.dispatch(setUser(response.data.user));
-    store.dispatch(setAccessToken(response.data.accessToken));
+    
+    store.dispatch(setAccessToken(response.data));
 
     console.log("[Auth] Authentication initialized successfully");
     return true;
@@ -129,10 +127,9 @@ backendApi.interceptors.response.use(
       try {
         console.log("[Auth] Refreshing access token...");
         const response = await backendApi.post("/api/v1/auth/refresh");
-        const newAccessToken = response.data.accessToken;
+        const newAccessToken = response.data;
 
         // Zapisz nowy token w store (response.data to AuthResponse)
-        store.dispatch(setUser(response.data.user));
         store.dispatch(setAccessToken(newAccessToken));
 
         // Dodaj nowy token do oryginalnego requesta

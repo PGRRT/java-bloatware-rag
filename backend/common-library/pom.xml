@@ -4,14 +4,17 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.example</groupId>
-        <artifactId>microservices</artifactId>
-        <version>1.0.0</version>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.5.7</version>
+        <relativePath/> <!-- lookup parent from repository -->
     </parent>
+    <groupId>com.example</groupId>
     <artifactId>common-library</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
     <name>common-library</name>
     <description>Shared library</description>
-
+    <url/>
 
     <properties>
         <maven.compiler.source>25</maven.compiler.source>

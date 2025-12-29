@@ -1,5 +1,7 @@
-package com.example.common.security;
+package com.example.common.jwt.filter;
 
+import com.example.common.jwt.service.JwtService;
+import com.example.common.jwt.dto.UserPrincipal;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -46,7 +48,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role));
 
-            UserPrincipal principal = new UserPrincipal(id, email, authorities);
+            // isActive is set to true, as we are validating token here
+            UserPrincipal principal = new UserPrincipal(id, email,null, true, authorities);
 
             // According to spring security docs, this is recommended way to set authentication
             // This way is thread safe
@@ -72,3 +75,4 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         return authHeader.substring(7);
     }
 }
+
