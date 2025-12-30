@@ -11,7 +11,6 @@ import java.time.Duration;
 @Service
 @RequiredArgsConstructor
 public class OtpService {
-
     private final StringRedisTemplate redisTemplate;
     private final OtpCodeGenerator otpCodeGenerator;
     private static final Duration OTP_TTL = Duration.ofMinutes(5);

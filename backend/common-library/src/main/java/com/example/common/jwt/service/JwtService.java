@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
 @Setter
 @RequiredArgsConstructor
 public class JwtService {
-
     private final CookieService cookieService;
 
     @Value("${jwt.secret}")

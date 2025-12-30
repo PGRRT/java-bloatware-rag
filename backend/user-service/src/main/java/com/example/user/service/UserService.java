@@ -1,5 +1,7 @@
 package com.example.user.service;
 
+import com.example.common.jwt.dto.AccessRefreshToken;
+import com.example.user.domain.dto.auth.AuthResult;
 import com.example.user.domain.dto.user.request.LoginUserRequest;
 import com.example.user.domain.dto.user.request.RegisterUserRequest;
 import com.example.user.domain.dto.user.response.UserResponse;
@@ -29,7 +31,6 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final RoleService roleService;
     private final JwtService jwtService;
-    private final AuthenticationManager authenticationManager;
 
     @Transactional
     public UserResponse saveUser(RegisterUserRequest registerUserRequest, boolean hasOtpValid) {
@@ -86,36 +87,6 @@ public class UserService {
         return userMapper.toDto(user);
     }
 
-    public UserResponse loginUser(LoginUserRequest request) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
-        );
 
-        UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
 
-        String role = principal.authorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .map(authority -> authority.replace("ROLE_", ""))
-                .findFirst()
-                .orElse("USER");
-
-        return  UserResponse.builder()
-                .id(principal.id())
-                .email(principal.email())
-                .role(role)
-                .active(principal.isEnabled())
-                .build();
-    }
-//        userMapper.toDtoFromPrincipal(principal);
-
-//        User user = userRepository.findUserWithRoleByEmail(registerRequestDto.getEmail()).orElse(null);
-//        // User user =
-//        // userRepository.findByEmail(registerRequestDto.getEmail()).orElse(null);
-//        if (user == null || !passwordEncoder.matches(registerRequestDto.getPassword(), user.getPassword())) {
-//            throw new BadCredentialsException("Invalid email or password");
-//        } else if (!user.isActive()) {
-//            throw new IllegalStateException("User account is not active"); // skip for now
-//        }
-//
-//        return userMapper.toDto(user);
 }

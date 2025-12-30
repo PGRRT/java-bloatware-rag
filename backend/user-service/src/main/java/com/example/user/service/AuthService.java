@@ -1,8 +1,15 @@
 package com.example.user.service;
 
+import com.example.common.jwt.dto.AccessRefreshToken;
 import com.example.common.jwt.dto.JwtUserClaims;
+import com.example.common.jwt.dto.UserPrincipal;
+import com.example.user.domain.dto.auth.AuthResult;
+import com.example.user.domain.dto.user.request.LoginUserRequest;
+import com.example.user.domain.dto.user.request.RegisterUserRequest;
+import com.example.user.domain.dto.user.response.UserResponse;
 import com.example.user.domain.entities.User;
 import com.example.user.exceptions.InvalidTokenException;
+import com.example.user.exceptions.OtpInvalidException;
 import com.example.user.exceptions.TokenRefreshException;
 import com.example.user.exceptions.UserNotActiveException;
 import com.example.user.mapper.UserMapper;
@@ -14,6 +21,11 @@ import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.ResponseCookie;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import com.example.common.jwt.service.CookieService;
@@ -27,6 +39,57 @@ public class AuthService {
     private final JwtService jwtService;
     private final UserRepository userRepository;
     private final RedisTemplate<String, String> redisTemplate;
+    private final CookieService cookieService;
+    private final OtpService otpService;
+    private final UserService userService;
+    private final AuthenticationManager authenticationManager;
+
+    public AuthResult loginUser(LoginUserRequest request) {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+        );
+
+        UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
+
+        String role = principal.authorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .map(authority -> authority.replace("ROLE_", ""))
+                .findFirst()
+                .orElse("USER");
+
+        UserResponse userResponse = UserResponse.builder()
+                .id(principal.id())
+                .email(principal.email())
+                .role(role)
+                .active(principal.isEnabled())
+                .build();
+
+        AccessRefreshToken tokens = jwtService.createSessionCookies(
+                userResponse.getId(),
+                userResponse.getEmail(),
+                userResponse.getRole()
+        );
+
+        return new AuthResult(userResponse, tokens.getAccessToken(), tokens.getRefreshToken());
+    }
+
+    public AuthResult registerUser(RegisterUserRequest request) {
+        boolean hasOtpValid = otpService.verifyOtp(request.getEmail(), request.getOtp());
+
+        if (!hasOtpValid) {
+            throw new OtpInvalidException("Invalid or expired OTP. Please request a new one.");
+        }
+
+        UserResponse userResponse = userService.saveUser(request,true);
+
+        AccessRefreshToken tokens = jwtService.createSessionCookies(
+                userResponse.getId(),
+                userResponse.getEmail(),
+                userResponse.getRole()
+        );
+
+        return new AuthResult(userResponse, tokens.getAccessToken(), tokens.getRefreshToken());
+    }
 
     public String refreshToken(String refreshTokenCookie) {
         try {
@@ -117,9 +180,13 @@ public class AuthService {
         }
     }
 
-    public void logout(String refreshToken) {
+    public ResponseCookie logout(String refreshToken) {
         if (refreshToken != null && !refreshToken.isEmpty()) {
             blacklistToken(refreshToken);
         }
+
+        ResponseCookie clearRefresh = cookieService.clearRefreshTokenCookie();
+
+        return clearRefresh;
     }
 }
