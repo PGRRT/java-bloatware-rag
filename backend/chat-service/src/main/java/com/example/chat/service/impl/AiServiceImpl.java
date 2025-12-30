@@ -62,7 +62,8 @@ public class AiServiceImpl implements AiService {
             messageService.saveBotMessage(chatId, generatedResponse);
         } catch (Exception ex) {
             log.error("Async AI processing failed for chat {}", chatId, ex);
-            sseService.emit(chatId, ChatEvent.ERROR, "AI processing failed");
+            String errorResponse = "I'm sorry, but I'm unable to process your request at the moment.";
+            messageService.saveBotMessage(chatId, errorResponse);
         }
     }
 }

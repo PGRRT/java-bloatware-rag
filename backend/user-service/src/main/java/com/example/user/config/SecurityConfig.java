@@ -30,6 +30,8 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
+                .formLogin(AbstractHttpConfigurer::disable)
+                .httpBasic(AbstractHttpConfigurer::disable)
                 .sessionManagement((session) -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
@@ -41,9 +43,7 @@ public class SecurityConfig {
 
                 // According to spring security docs, it add authentication filter after LogoutFilter
                 // https://docs.spring.io/spring-security/reference/servlet/architecture.html#servlet-filters-review
-                .addFilterAfter(jwtAuthenticationFilter, LogoutFilter.class)
-                .formLogin(AbstractHttpConfigurer::disable)
-                .httpBasic(AbstractHttpConfigurer::disable); // Disable HTTP Basic auth
+                .addFilterAfter(jwtAuthenticationFilter, LogoutFilter.class);
 
         return http.build();
     }
