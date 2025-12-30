@@ -16,6 +16,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import java.util.List;
 
@@ -40,10 +41,7 @@ public class SecurityConfig {
 //                        .anyRequest().authenticated()
                                 .anyRequest().permitAll()
                 )
-
-                // According to spring security docs, it add authentication filter after LogoutFilter
-                // https://docs.spring.io/spring-security/reference/servlet/architecture.html#servlet-filters-review
-                .addFilterAfter(jwtAuthenticationFilter, LogoutFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

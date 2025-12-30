@@ -14,11 +14,11 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface ChatService {
-    Page<ChatResponse> getAllChats(boolean includeGlobal, Pageable pageable);
-    CreateChatResponse saveChat(CreateChatRequest chatRequest);
+    Page<ChatResponse> getGlobalAndUserChats(UUID userId, boolean includeGlobal, Pageable pageable);
+    CreateChatResponse saveChat(CreateChatRequest chatRequest, UUID userId);
 
-    List<MessageResponse> getAllMessagesInChat(UUID chatId);
-    void deleteChat(UUID chatId);
+    List<MessageResponse> getAllMessagesInChat(UUID chatId, UUID userId);
+    void deleteChat(UUID chatId,UUID userId);
 
     boolean existsById(UUID chatId);
     Chat findById(UUID chatId);

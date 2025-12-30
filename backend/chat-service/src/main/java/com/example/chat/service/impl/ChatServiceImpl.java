@@ -4,9 +4,9 @@ import com.example.chat.domain.dto.chat.request.CreateChatRequest;
 import com.example.chat.domain.dto.chat.response.ChatResponse;
 import com.example.chat.domain.dto.chat.response.ChatWithMessagesResponse;
 import com.example.chat.domain.dto.chat.response.CreateChatResponse;
-import com.example.chat.domain.dto.message.request.CreateMessageRequest;
 import com.example.chat.domain.dto.message.response.MessageResponse;
 import com.example.chat.domain.entities.Chat;
+import com.example.chat.domain.enums.ChatType;
 import com.example.chat.domain.enums.Sender;
 import com.example.chat.mapper.ChatMapper;
 import com.example.chat.mapper.MessageMapper;
@@ -14,6 +14,7 @@ import com.example.chat.repository.ChatRepository;
 import com.example.chat.service.AiService;
 import com.example.chat.service.ChatService;
 import com.example.chat.service.MessageService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -33,57 +34,69 @@ public class ChatServiceImpl implements ChatService {
     private final MessageMapper messageMapper;
 
     @Override
-    public Page<ChatResponse> getAllChats(boolean includeGlobal, Pageable pageable) {
-        // TODO:
-        // in future we will get this from security context
-        UUID userId = null;
+    @Transactional(readOnly = true)
+    public Page<ChatResponse> getGlobalAndUserChats(UUID userId, boolean includeGlobal, Pageable pageable) {
         Page<Chat> chatsPage = chatRepository.findChatsForUser(userId, includeGlobal, pageable);
 
         return chatsPage.map(chatMapper::toChatResponse);
     }
 
-
-
     @Override
     @Transactional
-    public CreateChatResponse saveChat(CreateChatRequest chatRequest) {
-        // check if user exists
-
+    public CreateChatResponse saveChat(CreateChatRequest chatRequest,UUID userId) {
         Chat chat = chatMapper.toEntity(chatRequest);
+
+        chat.setUserId(userId);
+
         Chat savedChat = chatRepository.save(chat);
         return chatMapper.toCreateChatResponse(savedChat);
     }
 
     @Override
-    public List<MessageResponse> getAllMessagesInChat(UUID chatId) {
+    @Transactional(readOnly = true)
+    public List<MessageResponse> getAllMessagesInChat(UUID chatId, UUID userId) {
         Chat chat = chatRepository.findChatWithMessagesById(chatId).orElseThrow(() -> {
             log.warn("Chat with id {} not found when fetching messages.", chatId);
-            return new IllegalArgumentException("Chat with id " + chatId + " not found.");
+            return new EntityNotFoundException("Chat not found");
         });
 
+        boolean isOwner = chat.getUserId() != null && chat.getUserId().equals(userId);
+        boolean isGlobal = Boolean.TRUE.equals(chat.getChatType() == ChatType.GLOBAL);
+
+        if (!isGlobal && !isOwner) {
+            log.warn("User {} tried to access messages of chat {} belonging to {}", userId, chatId, chat.getUserId());
+
+            throw new EntityNotFoundException("Chat not found");
+        }
         return chat.getMessages().stream().map(messageMapper::toMessageResponse).toList();
     }
 
     @Override
     @Transactional
-    public void deleteChat(UUID chatId) {
-        if (!chatRepository.existsById(chatId)) {
-            log.warn("Chat with id {} not found for deletion.", chatId);
-            throw new IllegalArgumentException("Chat with id " + chatId + " not found for deletion.");
+    public void deleteChat(UUID chatId,UUID userId) {
+        Chat chat = findById(chatId);
+
+        if (chat.getUserId() != null && !chat.getUserId().equals(userId)) {
+            log.warn("User {} tried to delete chat {} belonging to {}", userId, chatId, chat.getUserId());
+
+            throw new EntityNotFoundException("Chat not found");
         }
-        chatRepository.deleteById(chatId);
+
+        chatRepository.delete(chat);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public boolean existsById(UUID chatId) {
         return chatRepository.existsById(chatId);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Chat findById(UUID chatId) {
         return chatRepository.findById(chatId).orElseThrow(() -> {
             log.warn("Chat with id {} not found.", chatId);
-            return new IllegalArgumentException("Chat with id " + chatId + " not found.");
+            return new EntityNotFoundException("Chat not found");
         });
     }
 

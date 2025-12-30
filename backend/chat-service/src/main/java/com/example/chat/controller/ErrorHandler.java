@@ -3,6 +3,7 @@ package com.example.chat.controller;
 import com.example.chat.domain.dto.error.response.ApiErrorResponse;
 import com.example.chat.domain.dto.error.response.FieldError;
 import io.jsonwebtoken.JwtException;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -95,6 +96,17 @@ public class ErrorHandler {
         return ResponseEntity.noContent().build();
     }
 
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<ApiErrorResponse> handleEntityNotFoundException(EntityNotFoundException e) {
+        log.error("An error occurred: {}", e.getMessage(), e);
+
+        ApiErrorResponse error = ApiErrorResponse.builder()
+                .status(HttpStatus.NOT_FOUND.value())
+                .message(e.getMessage())
+                .build();
+
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
 
 
 }

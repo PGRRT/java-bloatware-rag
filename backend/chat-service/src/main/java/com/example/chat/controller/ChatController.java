@@ -10,6 +10,7 @@ import com.example.chat.domain.entities.Chat;
 import com.example.chat.service.ChatService;
 import com.example.chat.service.SseService;
 import com.example.chat.service.impl.ChatServiceImpl;
+import com.example.common.jwt.dto.UserPrincipal;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -19,10 +20,14 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
 
@@ -43,31 +48,34 @@ public class ChatController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "createdAt") String sortBy,
-            @RequestParam(defaultValue = "false") boolean includeGlobal
+            @RequestParam(defaultValue = "false") boolean includeGlobal,
+            @AuthenticationPrincipal UserPrincipal user
     ) {
-        // extract email from security context
-        String email = null;
+        UUID userId = user != null ? user.id() : null;
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy).descending());
 
-        Page<ChatResponse> allChatsWithMessages  = chatService.getAllChats(includeGlobal,pageable);
+        Page<ChatResponse> allChatsWithMessages = chatService.getGlobalAndUserChats(userId, includeGlobal, pageable);
 
         return new ResponseEntity<>(allChatsWithMessages, HttpStatus.OK);
     }
 
     @PostMapping
-    public ResponseEntity<CreateChatResponse> createChat(@Valid @RequestBody CreateChatRequest request) {
-        CreateChatResponse createChatResponse = chatService.saveChat(request);
+    public ResponseEntity<CreateChatResponse> createChat(@Valid @RequestBody CreateChatRequest request,
+                                                         @AuthenticationPrincipal UserPrincipal user
+    ) {
+        UUID userId = user != null ? user.id() : null;
+
+        CreateChatResponse createChatResponse = chatService.saveChat(request, userId);
         return new ResponseEntity<>(createChatResponse, HttpStatus.CREATED);
     }
 
     @DeleteMapping("/{chatId}")
-    public ResponseEntity<Void> deleteChat(@PathVariable UUID chatId) {
-        chatService.deleteChat(chatId);
+    public ResponseEntity<Void> deleteChat(@PathVariable UUID chatId,
+                                           @AuthenticationPrincipal UserPrincipal user
+                                           ) {
+        UUID userId = user != null ? user.id() : null;
+
+        chatService.deleteChat(chatId,userId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
-
-//    @PostMapping("{id}")
-//    public ResponseEntity<> readChat(@PathVariable String id) {
-//        return "chatResponse";
-//    }
 }

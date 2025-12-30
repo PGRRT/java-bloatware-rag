@@ -3,6 +3,8 @@ package com.example.chat.domain.entities;
 import com.example.chat.domain.enums.Sender;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -36,6 +38,7 @@ public class Message extends BaseClass<UUID> {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "chat_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Chat chat;
 
     @CreatedDate

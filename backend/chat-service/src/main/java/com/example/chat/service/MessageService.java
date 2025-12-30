@@ -7,7 +7,7 @@ import java.util.UUID;
 
 public interface MessageService {
     MessageResponse getMessageById(UUID chatId, UUID messageId);
-    CreateMessageResponse createMessage(UUID chatId, CreateMessageRequest createMessageRequest);
-    void deleteMessage(UUID chatId, UUID messageId);
+    CreateMessageResponse createMessage(CreateMessageRequest createMessageRequest, UUID chatId, UUID userId);
+    void deleteMessage(UUID chatId, UUID messageId, UUID userId);
     void saveBotMessage(UUID chatId, String generatedResponse);
 }
