@@ -40,7 +40,6 @@ export const useAuth = (): UseAuthReturn => {
   const navigate = useNavigate();
 
   const { user, loading: isLoading, error } = useUserSWR();
-  console.log("user", user);
 
   
   const login = useCallback(

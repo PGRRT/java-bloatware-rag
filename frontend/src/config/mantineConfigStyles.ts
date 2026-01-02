@@ -308,6 +308,7 @@ export const mantineTheme = createTheme({
         tooltip: {
           backgroundColor: colorPalette.backgroundTertiary,
           color: colorPalette.textActive,
+          fontSize: "13px",
         },
       }),
     },

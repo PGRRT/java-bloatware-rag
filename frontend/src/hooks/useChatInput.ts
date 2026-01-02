@@ -9,8 +9,15 @@ import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { postMessagesAction } from "@/redux/slices/messageSlice";
 import { useUserSWR } from "@/hooks/useUser";
 import type { UUID } from "@/types/global";
+import { ChatRoom, type ChatRoomType } from "@/api/enums/ChatRoom";
 
-const useChatInput = ({ chatId = "" as UUID }: { chatId?: UUID }) => {
+const useChatInput = ({
+  chatId = "" as UUID,
+  mode,
+}: {
+  chatId?: UUID;
+  mode: ChatRoomType;
+}) => {
   const [file, setFile] = useState<File | null>(null);
   const [message, setMessage] = useState<string>("");
   const { user } = useUserSWR();
@@ -27,10 +34,16 @@ const useChatInput = ({ chatId = "" as UUID }: { chatId?: UUID }) => {
 
     if (!chatId) {
       // Create new chat if chatId is not provided
+
+      if (mode == ChatRoom.PRIVATE && !user?.email) {
+        showToast.error("You must be logged in to start a private chat.");
+        return;
+      }
+
       const res = await dispatch(
         createChatAction({
           message,
-          chatType: user?.user ? "PRIVATE" : "GLOBAL",
+          chatType: mode,
         })
       );
 

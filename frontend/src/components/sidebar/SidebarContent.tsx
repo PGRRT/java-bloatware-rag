@@ -7,7 +7,6 @@ import { Loader, SegmentedControl } from "@mantine/core";
 import { SearchIcon, SquarePen } from "lucide-react";
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { useInfiniteChats } from "@/hooks/useInfiniteChats";
 import {
   SidebarOption,
   type chatMode,
@@ -52,6 +51,7 @@ const SidebarContent = ({ expanded }) => {
   if (!expanded) {
     return null;
   }
+
   return (
     <ContentWrapper
       gap="10px"
@@ -96,7 +96,7 @@ const SidebarContent = ({ expanded }) => {
         />
       </ContentWrapper>
 
-      <SidebarChats mode={mode} />
+      <SidebarChats key={mode} mode={mode} />
     </ContentWrapper>
   );
 };

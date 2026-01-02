@@ -5,6 +5,7 @@ import { chatApi } from "@/api/chatApi";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import type { ChatRoomType } from "@/api/enums/ChatRoom";
 import exceptionWrapper from "@/utils/exceptionWrapper";
+import { revalidateChats } from "@/hooks/useInfiniteChats";
 
 const initialState = {
   chats: [] as Array<{ id: string; title: string }>,
@@ -12,19 +13,19 @@ const initialState = {
   error: null as string | null,
 };
 
-export const fetchChatsAction = createAsyncThunk(
-  "chat/fetchChats",
-  async (_, { rejectWithValue }) => {
-    const response = await exceptionWrapper(async () => {
-      return chatApi.getChats();
-    });
+// export const fetchChatsAction = createAsyncThunk(
+//   "chat/fetchChats",
+//   async (_, { rejectWithValue }) => {
+//     const response = await exceptionWrapper(async () => {
+//       return chatApi.getChats();
+//     });
 
-    if (!response.success) {
-      return rejectWithValue("Failed to fetch chats");
-    }
-    return response.data;
-  }
-);
+//     if (!response.success) {
+//       return rejectWithValue("Failed to fetch chats");
+//     }
+//     return response.data;
+//   }
+// );
 
 export const createChatAction = createAsyncThunk(
   "chat/createChat",
@@ -36,9 +37,12 @@ export const createChatAction = createAsyncThunk(
       return chatApi.createChat(message, chatType);
     }, "Chat created successfully");
 
+    revalidateChats();
+
     if (!response.success) {
       return rejectWithValue("Failed to create chat");
     }
+
     return response.data;
   }
 );
@@ -48,21 +52,21 @@ const chatSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers: (builder) => {
-    builder
-      .addCase(fetchChatsAction.pending, (state) => {
-        state.isLoading = true;
-        state.error = null;
-      })
-      .addCase(fetchChatsAction.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error = action.payload as string;
-      })
-      .addCase(
-        fetchChatsAction.fulfilled,
-        (state, action: PayloadAction<any>) => {
-          state.chats = action.payload;
-        }
-      );
+    // builder
+    //   .addCase(fetchChatsAction.pending, (state) => {
+    //     state.isLoading = true;
+    //     state.error = null;
+    //   })
+    //   .addCase(fetchChatsAction.rejected, (state, action) => {
+    //     state.isLoading = false;
+    //     state.error = action.payload as string;
+    //   })
+    //   .addCase(
+    //     fetchChatsAction.fulfilled,
+    //     (state, action: PayloadAction<any>) => {
+    //       state.chats = action.payload;
+    //     }
+    //   );
   },
 });
 
