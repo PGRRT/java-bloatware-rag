@@ -2,7 +2,7 @@ import { cx, css } from "@emotion/css";
 import { typography } from "@/constants/typography";
 import { ChevronDown } from "lucide-react";
 import IconWrapper from "@/components/ui/IconWrapper";
-import { useState } from "react";
+import React, { useState } from "react";
 import colorPalette from "@/constants/colorPalette";
 import CustomPopover from "@/components/ui/CustomPopover";
 import { styles } from "@/constants/styles";
@@ -79,9 +79,8 @@ const SelectInput = ({
         <div className={css``}>
           {options?.map((option, idx) => {
             return (
-              <>
+              <React.Fragment key={option.value}>
                 <button
-                  key={option.value}
                   onClick={() => {
                     onChange(option.value);
                     setOpen(false);
@@ -112,7 +111,7 @@ const SelectInput = ({
                     `}
                   />
                 )}
-              </>
+              </React.Fragment>
             );
           })}
         </div>

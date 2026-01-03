@@ -26,7 +26,6 @@ const useChatInput = ({
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const sendMessage = async (e: React.FormEvent<HTMLFormElement>) => {
-
     e.preventDefault();
 
     let tempChatId: UUID = chatId;
