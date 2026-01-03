@@ -36,7 +36,7 @@ public class Chat extends BaseClass<UUID> {
     private ChatType chatType;
 
     @Builder.Default
-    @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "chat", cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)
     List<Message> messages = new ArrayList<>();
 
     @CreatedDate
@@ -47,9 +47,11 @@ public class Chat extends BaseClass<UUID> {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
-    @AssertTrue(message = "userId must be set for PRIVATE chats and null for GLOBAL chats")
+    @AssertTrue(message = "userId must be set for PRIVATE chats")
     private boolean isUserIdValid() {
-        return (chatType == ChatType.PRIVATE && userId != null) ||
-                (chatType == ChatType.GLOBAL && userId == null);
+        if (chatType == ChatType.PRIVATE && userId == null) {
+            return false;
+        }
+        return true;
     }
 }

@@ -18,9 +18,14 @@ import { useState } from "react";
 import { useParams } from "react-router-dom";
 import Logo from "@/components/ui/Logo";
 import colorPalette from "@/constants/colorPalette";
+import type { UUID } from "@/types/global";
 
 const Chat = () => {
-  const { chatId } = useParams();
+  const {
+    chatId,
+  }: {
+    chatId?: UUID;
+  } = useParams();
 
   return (
     <ContentWrapper
@@ -46,13 +51,13 @@ const Chat = () => {
             align="center"
             gap="10px"
           >
-            <Logo size={55} />
+            <Logo height={60} />
             <h3 className={cx(typography.textTitle, typography.textTitleTai)}>
               MedAI
             </h3>
           </ContentWrapper>
 
-          <ChatAIInput />
+          <ChatAIInput isNewChat />
 
           <ContentWrapper
             direction="row"

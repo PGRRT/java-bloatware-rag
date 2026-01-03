@@ -2,25 +2,29 @@ FROM eclipse-temurin:25
 
 WORKDIR /app
 
-# Copy build files and source code
-COPY mvnw mvnw
-COPY .mvn .mvn
-COPY pom.xml pom.xml
-COPY src src
-
 RUN apt-get update && apt-get install -y bash dos2unix curl \
     && rm -rf /var/lib/apt/lists/*
 
+# Copy and build common-library
+COPY common-library/mvnw mvnw
+COPY common-library/.mvn .mvn
 RUN dos2unix mvnw && chmod +x mvnw
 
-RUN ./mvnw dependency:resolve
+# Build and install common-library
+COPY common-library/pom.xml common-library/pom.xml
+RUN ./mvnw -f common-library/pom.xml clean install -DskipTests
+COPY common-library/src common-library/src
+
+# Build and install user-service
+COPY user-service/pom.xml user-service/pom.xml
+RUN ./mvnw -f user-service/pom.xml dependency:resolve
+COPY user-service/src user-service/src
+
+# Copy entrypoint script
+COPY user-service/entrypoint.sh entrypoint.sh
+RUN chmod +x entrypoint.sh
 
 EXPOSE 8081
 
-# Fixes problem with mvnw \r ending on linux
-COPY entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
-ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
-
-# Start aplikacji w trybie developerskim z hot reload
-CMD ["./mvnw", "spring-boot:run"]
+ENTRYPOINT ["./entrypoint.sh"]
+CMD ["./mvnw", "spring-boot:run", "-f", "user-service/pom.xml"]

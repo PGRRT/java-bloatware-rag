@@ -1,4 +1,4 @@
-package com.example.user.service;
+package com.example.common.jwt.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -59,3 +59,4 @@ public class CookieService {
 
 
 }
+

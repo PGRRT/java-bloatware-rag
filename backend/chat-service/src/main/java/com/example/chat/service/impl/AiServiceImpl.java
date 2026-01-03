@@ -1,7 +1,6 @@
 package com.example.chat.service.impl;
 
 import com.example.chat.domain.dto.ai.response.AiResponse;
-import com.example.chat.domain.dto.message.request.CreateMessageRequest;
 import com.example.chat.domain.enums.ChatEvent;
 import com.example.chat.domain.enums.Sender;
 import com.example.chat.service.AiService;
@@ -62,7 +61,8 @@ public class AiServiceImpl implements AiService {
             messageService.saveBotMessage(chatId, generatedResponse);
         } catch (Exception ex) {
             log.error("Async AI processing failed for chat {}", chatId, ex);
-            sseService.emit(chatId, ChatEvent.ERROR, "AI processing failed");
+            String errorResponse = "I'm sorry, but I'm unable to process your request at the moment.";
+            messageService.saveBotMessage(chatId, errorResponse);
         }
     }
 }

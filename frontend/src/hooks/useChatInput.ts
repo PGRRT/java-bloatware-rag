@@ -8,8 +8,18 @@ import { createChatAction } from "@/redux/slices/chatSlice";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { postMessagesAction } from "@/redux/slices/messageSlice";
 import { useUserSWR } from "@/hooks/useUser";
+import type { UUID } from "@/types/global";
+import { ChatRoom, type ChatRoomType } from "@/api/enums/ChatRoom";
 
-const useChatInput = ({ chatId = "" }: { chatId?: string }) => {
+const useChatInput = ({
+  chatId = "" as UUID,
+  mode,
+  isNewChat = false,
+}: {
+  chatId?: UUID;
+  mode: ChatRoomType;
+  isNewChat?: boolean;
+}) => {
   const [file, setFile] = useState<File | null>(null);
   const [message, setMessage] = useState<string>("");
   const { user } = useUserSWR();
@@ -18,18 +28,24 @@ const useChatInput = ({ chatId = "" }: { chatId?: string }) => {
   const sendMessage = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    let tempChatId: string = chatId;
+    let tempChatId: UUID = chatId;
 
     if (!message.trim()) {
       return;
     }
 
-    if (!chatId) {
+    if (isNewChat) {
       // Create new chat if chatId is not provided
+
+      if (mode == ChatRoom.PRIVATE && !user?.email) {
+        showToast.error("You must be logged in to start a private chat.");
+        return;
+      }
+
       const res = await dispatch(
         createChatAction({
           message,
-          chatType: user?.user ? "PRIVATE" : "GLOBAL",
+          chatType: mode,
         })
       );
 
@@ -43,7 +59,7 @@ const useChatInput = ({ chatId = "" }: { chatId?: string }) => {
       const chatId = res.payload.id;
       tempChatId = chatId;
       setTimeout(() => {
-        navigate(`/chat/${chatId}`, {
+        navigate(`/c/${chatId}`, {
           replace: false,
         });
       }, 1000);

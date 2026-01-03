@@ -34,7 +34,7 @@ const LoginForm = () => {
 
   watch((_, { name }) => {
     if (name === "email" || name === "password") {
-      clearErrors(name); // czyszczenie tylko tego pola
+      clearErrors(name);
     }
   });
 

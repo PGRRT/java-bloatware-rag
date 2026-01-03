@@ -14,6 +14,7 @@ import {
 import { showToast } from "@/utils/showToast";
 import type { Credentials, RegisterData, User } from "@/types/user";
 import { useUserSWR } from "@/hooks/useUser";
+import { useSWRConfig } from "swr";
 
 interface UseAuthReturn {
   // State
@@ -40,6 +41,7 @@ export const useAuth = (): UseAuthReturn => {
   const navigate = useNavigate();
 
   const { user, loading: isLoading, error } = useUserSWR();
+  const { mutate } = useSWRConfig();
 
   const login = useCallback(
     async (credentials: Credentials) => {
@@ -51,9 +53,12 @@ export const useAuth = (): UseAuthReturn => {
           errorMessage: (err) => err || "Login failed",
         }
       );
+
+      await mutate(() => true, undefined, { revalidate: false });
+
       return response;
     },
-    [dispatch]
+    [dispatch, mutate]
   );
 
   const register = useCallback(
@@ -66,9 +71,11 @@ export const useAuth = (): UseAuthReturn => {
           errorMessage: (err) => err || "Registration failed",
         }
       );
+      await mutate(() => true, undefined, { revalidate: false });
+
       return response;
     },
-    [dispatch]
+    [dispatch, mutate]
   );
 
   const createOtp = useCallback(
@@ -97,14 +104,17 @@ export const useAuth = (): UseAuthReturn => {
       }
     );
 
+    await mutate(() => true, undefined, { revalidate: false });
+
     const { data, error } = response ?? {};
+
     if (data) {
       navigate("/sign-in");
     } else if (error) {
       dispatch(resetAuth());
       navigate("/sign-in");
     }
-  }, [dispatch, navigate]);
+  }, [dispatch, navigate, mutate]);
 
   const updateProfile = useCallback(
     (updates: Partial<User>): void => {

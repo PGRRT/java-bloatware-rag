@@ -22,6 +22,7 @@ const ContentWrapper = ({
   backgroundColor,
   wrap,
   customCss,
+  as: Tag = "div",
   onClick,
 }: {
   children: React.ReactNode;
@@ -45,10 +46,11 @@ const ContentWrapper = ({
   wrap?: string;
   borderRadius?: string;
   customCss?: string;
+  as?: React.ElementType;
   onClick?: () => void;
 }) => {
   return (
-    <div
+    <Tag
       onClick={onClick}
       id={id}
       className={cx(
@@ -80,7 +82,7 @@ const ContentWrapper = ({
       )}
     >
       {children}
-    </div>
+    </Tag>
   );
 };
 

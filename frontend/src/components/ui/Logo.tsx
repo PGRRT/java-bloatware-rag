@@ -6,20 +6,25 @@ import colorPalette from "@/constants/colorPalette";
 const Logo = ({
   onClick,
   size = 44,
+  width,
+  height,
 }: {
   onClick?: () => void;
   size?: number;
+  width?: number | string;
+  height?: number | string;
 }) => {
   return (
     <>
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
+        viewBox="7 1 10 22"
         fill="none"
-        width={size}
-        height={size}
         onClick={onClick}
-        style={{ cursor: onClick ? "pointer" : "default" }}
+        style={{ cursor: onClick ? "pointer" : "default",
+          height: height ?? size ?? "fit-content",
+          width: width ?? size ?? "fit-content",
+         }}
       >
         <path
           d="M12 3v18 M10 5h4"

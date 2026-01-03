@@ -12,7 +12,7 @@ export const styles = {
   },
   borderRadius: {
     xs: "var(--radius-xs)",   // 0.3rem
-    small: "var(--radius-sm)",   // 0.6rem
+    small: "var(--radius-sm)",   // 0.6rem 
     medium: "var(--radius-md)",  // 0.9rem
     large: "var(--radius-lg)",   // 1.2rem
     xl: "var(--radius-xl)",      // 1.5rem
