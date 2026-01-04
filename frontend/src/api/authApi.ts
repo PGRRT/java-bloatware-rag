@@ -15,6 +15,7 @@ export const authApi = {
     apiClient.post("/api/v1/auth/register", data),
   logout: async (): Promise<AxiosResponse<void>> =>
     apiClient.post("/api/v1/auth/logout"),
-  refresh: async (): Promise<AxiosResponse<AuthResponse>> =>
-    apiClient.get("/api/v1/auth/refresh"),
+  
+  // refresh: async (): Promise<AxiosResponse<AuthResponse>> =>
+    // apiClient.get("/api/v1/auth/refresh"),
 };

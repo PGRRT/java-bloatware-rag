@@ -2,14 +2,14 @@ import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import {
-  loginUser,
-  registerUser,
-  logoutUser,
-  refreshToken,
+  loginUserAction,
+  registerUserAction,
+  logoutUserAction,
   clearError,
   updateUser,
   resetAuth,
-  requestOtp,
+  requestOtpAction,
+  deleteAccountAction,
 } from "@/redux/slices/authSlice";
 import { showToast } from "@/utils/showToast";
 import type { Credentials, RegisterData, User } from "@/types/user";
@@ -26,6 +26,7 @@ interface UseAuthReturn {
   login: (credentials: Credentials) => Promise<void>;
   register: (userData: RegisterData) => Promise<void>;
   logout: () => Promise<void>;
+  deleteAccount: () => Promise<void>;
   updateProfile: (updates: Partial<User>) => void;
   clearAuthError: () => void;
 
@@ -46,7 +47,7 @@ export const useAuth = (): UseAuthReturn => {
   const login = useCallback(
     async (credentials: Credentials) => {
       const response = await showToast.async.withLoading(
-        () => dispatch(loginUser(credentials)).unwrap(),
+        () => dispatch(loginUserAction(credentials)).unwrap(),
         {
           loadingMessage: "Logging in...",
           successMessage: "Logged in successfully",
@@ -64,7 +65,7 @@ export const useAuth = (): UseAuthReturn => {
   const register = useCallback(
     async (data: RegisterData) => {
       const response = await showToast.async.withLoading(
-        () => dispatch(registerUser(data)).unwrap(),
+        () => dispatch(registerUserAction(data)).unwrap(),
         {
           loadingMessage: "Registering...",
           successMessage: "Registered successfully",
@@ -81,7 +82,7 @@ export const useAuth = (): UseAuthReturn => {
   const createOtp = useCallback(
     async (email: string) => {
       const response = await showToast.async.withLoading(
-        () => dispatch(requestOtp(email)).unwrap(),
+        () => dispatch(requestOtpAction(email)).unwrap(),
         {
           loadingMessage: "Sending OTP...",
           successMessage: "OTP sent successfully",
@@ -96,11 +97,33 @@ export const useAuth = (): UseAuthReturn => {
 
   const logout = useCallback(async (): Promise<void> => {
     const response = await showToast.async.withLoading(
-      () => dispatch(logoutUser()).unwrap(),
+      () => dispatch(logoutUserAction()).unwrap(),
       {
         loadingMessage: "Logging out...",
         successMessage: "Logged out successfully",
         errorMessage: (err) => err || "Logout failed",
+      }
+    );
+
+    await mutate(() => true, undefined, { revalidate: false });
+
+    const { data, error } = response ?? {};
+
+    if (data) {
+      navigate("/sign-in");
+    } else if (error) {
+      dispatch(resetAuth());
+      navigate("/sign-in");
+    }
+  }, [dispatch, navigate, mutate]);
+
+  const deleteAccount = useCallback(async (): Promise<void> => {
+    const response = await showToast.async.withLoading(
+      () => dispatch(deleteAccountAction()).unwrap(),
+      {
+        loadingMessage: "Deleting account...",
+        successMessage: "Account deleted successfully",
+        errorMessage: (err) => err || "Account deletion failed",
       }
     );
 
@@ -155,6 +178,7 @@ export const useAuth = (): UseAuthReturn => {
       register,
       createOtp,
       logout,
+      deleteAccount,
       updateProfile,
       clearAuthError,
       hasRole,
@@ -168,6 +192,7 @@ export const useAuth = (): UseAuthReturn => {
       register,
       createOtp,
       logout,
+      deleteAccount,
       updateProfile,
       clearAuthError,
       hasRole,

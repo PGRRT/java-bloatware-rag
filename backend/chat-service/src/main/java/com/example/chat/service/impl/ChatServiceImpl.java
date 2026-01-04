@@ -75,6 +75,12 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     @Transactional
+    public void deleteAllChatsByUserId(UUID userId) {
+        chatRepository.deleteAllByUserId(userId);
+    }
+
+    @Override
+    @Transactional
     public void deleteChat(UUID chatId,UUID userId) {
         Chat chat = findById(chatId);
 

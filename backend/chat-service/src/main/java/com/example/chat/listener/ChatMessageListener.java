@@ -7,6 +7,7 @@ import com.example.chat.events.BotMessageEvent;
 import com.example.chat.service.SseService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
@@ -15,8 +16,9 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class ChatMessageListener {
     private final SseService sseService;
+    private final Queue instanceQueue;
 
-    @RabbitListener(queues = RabbitMqConfig.PRIVATE_QUEUE)
+    @RabbitListener(queues = "#{instanceQueue.name}")
     public void onMessage(BotMessageEvent event) {
         if (!sseService.hasEmitters(event.chatId())) {
             log.debug("No active SSE emitter for chatId {}, skipping message", event.chatId());

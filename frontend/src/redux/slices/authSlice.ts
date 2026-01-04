@@ -12,7 +12,7 @@ const initialState: AuthState = {
   error: null,
 };
 
-export const loginUser = createAsyncThunk(
+export const loginUserAction = createAsyncThunk(
   "auth/login",
   async (credentials: Credentials, { rejectWithValue }) => {
     try {
@@ -25,7 +25,7 @@ export const loginUser = createAsyncThunk(
   }
 );
 
-export const registerUser = createAsyncThunk(
+export const registerUserAction = createAsyncThunk(
   "auth/register",
   async (userData: RegisterData, { rejectWithValue }) => {
     try {
@@ -39,7 +39,7 @@ export const registerUser = createAsyncThunk(
   }
 );
 
-export const requestOtp = createAsyncThunk(
+export const requestOtpAction = createAsyncThunk(
   "auth/createOtp",
   async (email: string, { rejectWithValue }) => {
     try {
@@ -53,37 +53,21 @@ export const requestOtp = createAsyncThunk(
   }
 );
 
-export const refreshToken = createAsyncThunk(
-  "auth/refreshToken",
-  async (_, { rejectWithValue }) => {
-    try {
-      const response = await authApi.refresh();
-      return response.data;
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data?.message || "Token refresh failed"
-      );
-    }
-  }
-);
-
-// export const getCurrentUser = createAsyncThunk(
-//   "auth/getCurrentUser",
+// export const refreshToken = createAsyncThunk(
+//   "auth/refreshToken",
 //   async (_, { rejectWithValue }) => {
 //     try {
-//       const response = await userApi.getProfile();
-
+//       const response = await authApi.refresh();
 //       return response.data;
 //     } catch (error: any) {
-
 //       return rejectWithValue(
-//         error.response?.data?.message || "Failed to get user"
+//         error.response?.data?.message || "Token refresh failed"
 //       );
 //     }
 //   }
 // );
 
-export const logoutUser = createAsyncThunk(
+export const logoutUserAction = createAsyncThunk(
   "auth/logout",
   async (_, { rejectWithValue }) => {
     try {
@@ -91,6 +75,20 @@ export const logoutUser = createAsyncThunk(
       return true;
     } catch (error: any) {
       return true;
+    }
+  }
+);
+
+export const deleteAccountAction = createAsyncThunk(
+  "auth/deleteAccount",
+  async (_, { rejectWithValue }) => {
+    try {
+      await userApi.deleteMe();
+      return true;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Account deletion failed"
+      );
     }
   }
 );
@@ -118,17 +116,17 @@ const authSlice = createSlice({
   extraReducers: (builder) => {
     // Login
     builder
-      .addCase(loginUser.pending, (state) => {
+      .addCase(loginUserAction.pending, (state) => {
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(loginUser.fulfilled, (state, action) => {
+      .addCase(loginUserAction.fulfilled, (state, action) => {
         state.isLoading = false;
         state.user = action.payload.user;
         state.error = null;
         state.accessToken = action.payload.accessToken || null;
       })
-      .addCase(loginUser.rejected, (state, action) => {
+      .addCase(loginUserAction.rejected, (state, action) => {
         state.isLoading = false;
         state.user = null;
         state.error = action.payload as string;
@@ -136,50 +134,47 @@ const authSlice = createSlice({
 
     // Register
     builder
-      .addCase(registerUser.pending, (state) => {
+      .addCase(registerUserAction.pending, (state) => {
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(registerUser.fulfilled, (state, action) => {
+      .addCase(registerUserAction.fulfilled, (state, action) => {
         state.isLoading = false;
         state.user = action.payload.user;
         state.error = null;
         state.accessToken = action.payload.accessToken || null;
       })
-      .addCase(registerUser.rejected, (state, action) => {
+      .addCase(registerUserAction.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
       });
 
-    // // Get Current User
-    // builder
-    //   .addCase(getCurrentUser.pending, (state) => {
-    //     state.isLoading = true;
-    //   })
-    //   .addCase(getCurrentUser.fulfilled, (state, action) => {
-    //     state.isLoading = false;
-    //     state.user = action.payload.user || action.payload;
-    //     state.error = null;
-    //   })
-    //   .addCase(getCurrentUser.rejected, (state, action) => {
-    //     state.isLoading = false;
-    //     state.user = null;
-    //     state.error = action.payload as string;
-    //   });
-
-    // Refresh Token
+    // Delete Account
     builder
-      .addCase(refreshToken.fulfilled, (state, action) => {
-        state.user = action.payload.user;
-        state.accessToken = action.payload.accessToken;
+      .addCase(deleteAccountAction.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
       })
-      .addCase(refreshToken.rejected, (state) => {
-        state.user = null;
+      .addCase(deleteAccountAction.fulfilled, () => {
+        return initialState; // Clear all auth state
+      })
+      .addCase(deleteAccountAction.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
       });
 
+    // Refresh Token
+    // builder
+    //   .addCase(refreshToken.fulfilled, (state, action) => {
+    //     state.user = action.payload.user;
+    //     state.accessToken = action.payload.accessToken;
+    //   })
+    //   .addCase(refreshToken.rejected, (state) => {
+    //     state.user = null;
+    //   });
+
     // Logout
-    builder.addCase(logoutUser.fulfilled, () => {
-      
+    builder.addCase(logoutUserAction.fulfilled, () => {
       return initialState;
     });
   },

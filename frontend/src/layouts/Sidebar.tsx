@@ -37,8 +37,6 @@ export default function Sidebar() {
   const { isMobile } = useViewport();
   const sidebarWidth = expanded ? activeSidebarWidth : notActiveSidebarWidth;
 
- 
-
   return (
     <div
       id="sidebar"

@@ -4,7 +4,9 @@ import com.example.user.domain.dto.user.request.RegisterUserRequest;
 import com.example.user.domain.dto.user.response.UserResponse;
 import com.example.user.domain.entities.Role;
 import com.example.user.domain.entities.User;
+import com.example.user.exceptions.UserNotFoundException;
 import com.example.user.mapper.UserMapper;
+import com.example.user.publisher.UserEventPublisher;
 import com.example.user.repository.UserRepository;
 import com.example.common.jwt.service.JwtService;
 import com.example.user.service.RoleService;
@@ -16,6 +18,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.UUID;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -25,6 +29,7 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final RoleService roleService;
     private final JwtService jwtService;
+    private final UserEventPublisher userEventPublisher;
 
     @Override
     @Transactional
@@ -51,35 +56,20 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponse getCurrentUser(String accessToken) {
-        if (accessToken == null || accessToken.isEmpty()) {
-            throw new BadCredentialsException("Access token is missing");
-        }
-
-        String email;
-
-        if (!accessToken.startsWith("Bearer ")) {
-            throw new BadCredentialsException("Invalid access token format");
-        }
-        String token = accessToken.substring(7); // Remove "Bearer " prefix
-
-        try {
-            email = jwtService.getEmailFromToken(token);
-        } catch (Exception e) {
-            throw new BadCredentialsException("Invalid access token");
-        }
-
-        if (email == null || email.isEmpty()) {
-            throw new BadCredentialsException("Invalid access token");
-        }
-
-        User user = userRepository.findUserWithRoleByEmail(email).orElse(null);
-        if (user == null) {
-            throw new BadCredentialsException("User not found");
-        } else if (!user.isActive()) {
-            throw new IllegalStateException("User account is not active"); // skip for now
-        }
+    public UserResponse getCurrentUser(UUID userId) {
+        User user = userRepository.findUserWithRoleById(userId).orElseThrow(() -> new UserNotFoundException("User not found"));
 
         return userMapper.toDto(user);
     }
+
+    @Override
+    @Transactional
+    public void deleteCurrentUser(UUID userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        userRepository.delete(user);
+
+        userEventPublisher.publishUserDeleted(userId);
+    }
+
 }

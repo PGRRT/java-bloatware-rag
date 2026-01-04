@@ -20,6 +20,7 @@ public interface ChatService {
 
     List<MessageResponse> getAllMessagesInChat(UUID chatId, UUID userId);
     void deleteChat(UUID chatId,UUID userId);
+    public void deleteAllChatsByUserId(UUID userId);
 
     boolean existsById(UUID chatId);
     Chat findById(UUID chatId);
