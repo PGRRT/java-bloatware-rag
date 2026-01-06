@@ -1,10 +1,13 @@
 package com.example.user.controller;
 
 
+import com.example.common.jwt.dto.UserPrincipal;
 import com.example.user.domain.dto.user.response.UserResponse;
 import com.example.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -15,10 +18,18 @@ public class UserController {
 
     @GetMapping("/users/me")
     public ResponseEntity<UserResponse> getCurrentUser(
-            @RequestHeader(value = "Authorization", required = false) String accessToken
+            @AuthenticationPrincipal UserPrincipal principal
     ) {
-        UserResponse currentUser = userService.getCurrentUser(accessToken);
+        UserResponse currentUser = userService.getCurrentUser(principal.id());
 
         return ResponseEntity.ok(currentUser);
+    }
+
+    @DeleteMapping("/users/me")
+    public ResponseEntity<Void> deleteCurrentUser(
+            @AuthenticationPrincipal UserPrincipal principal
+    ) {
+        userService.deleteCurrentUser(principal.id());
+        return ResponseEntity.noContent().build();
     }
 }

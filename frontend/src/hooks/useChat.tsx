@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { ChatEvent } from "@/api/enums/ChatEvent";
 import type { MessageResponse } from "@/types/message";
 import { Sender, type SenderType } from "@/api/enums/Sender";
+import type { UUID } from "@/types/global";
 
 const formMessage = ({
   id,
@@ -29,7 +30,7 @@ const connectSse = ({
 }) => {
   const url = `http://localhost:8080/api/v1/chats/${chatId}/stream`;
   let sse: EventSource | null = null;
-  let retries = 0;
+  const retries = 0;
   const maxRetries = 4;
   let retryTimer: number | null = null;
   let closedByClient = false;
@@ -122,7 +123,7 @@ const connectSse = ({
   return { close };
 };
 
-const useChat = ({ chatId }: { chatId?: string }) => {
+const useChat = ({ chatId }: { chatId?: UUID }) => {
   const messages = useAppSelector((state) => state.message.messages);
   const dispatch = useAppDispatch();
 

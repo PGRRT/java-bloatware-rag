@@ -1,18 +1,15 @@
-package com.example.user.domain.dto.error.response;
+package com.example.common.exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ApiErrorResponse {
+public class FieldError {
+    private String field;
     private String message;
-    private int status;
-    private List<FieldError> fieldErrors;
 }

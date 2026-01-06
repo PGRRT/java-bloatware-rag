@@ -1,8 +1,7 @@
-package com.example.user.domain.dto.auth;
+package com.example.common.jwt.dto;
 
 import lombok.Builder;
 
-import java.util.List;
 import java.util.UUID;
 
 @Builder

@@ -3,7 +3,7 @@ import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { updateUser } from "@/redux/slices/authSlice";
 import { userApi } from "@/api/userApi";
 
-const fetchUser = () => userApi.getProfile().then((res) => res.data);
+const fetchUser = () => userApi.getMe().then((res) => res.data);
 
 export const useUserSWR = () => {
   const dispatch = useAppDispatch();

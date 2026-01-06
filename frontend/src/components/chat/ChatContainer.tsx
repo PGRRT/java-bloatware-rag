@@ -9,16 +9,27 @@ import { navbarHeight } from "@/layouts/Navbar";
 import { css, cx } from "@emotion/css";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import type { UUID } from "@/types/global";
+import { useEffect, useRef } from "react";
 
 export const AiInputHeight = 90;
 const chatPadding = 12;
 const additionalSpace = 30;
-const ChatContainer = ({ chatId }: { chatId: string }) => {
+const ChatContainer = ({ chatId }: { chatId: UUID }) => {
   const { messages } = useChat({ chatId });
-  console.log("messages", messages);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to bottom when new messages arrive
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
 
   return (
     <ContentWrapper
+      ref={scrollContainerRef}
       justify="center"
       position="relative"
       height="100%"
@@ -41,7 +52,7 @@ const ChatContainer = ({ chatId }: { chatId: string }) => {
         direction="column"
         gap="3rem"
         maxWidth="750px"
-        padding={`0 ${chatPadding}px`}
+        padding={`0 ${chatPadding}px ${AiInputHeight + 20}px`}
       >
         {messages.map((msg: MessageResponse) => (
           <ContentWrapper
@@ -74,6 +85,8 @@ const ChatContainer = ({ chatId }: { chatId: string }) => {
             </Markdown>
           </ContentWrapper>
         ))}
+        {/* Scroll anchor for auto-scrolling to latest message */}
+        <div ref={messagesEndRef} />
       </ContentWrapper>
       <ContentWrapper
         maxWidth="750px"

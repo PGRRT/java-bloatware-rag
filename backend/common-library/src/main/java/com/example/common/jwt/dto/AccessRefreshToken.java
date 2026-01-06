@@ -1,4 +1,4 @@
-package com.example.user.domain.dto.auth;
+package com.example.common.jwt.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,3 +14,4 @@ public class AccessRefreshToken {
     private String accessToken;
     private ResponseCookie refreshToken;
 }
+

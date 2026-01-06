@@ -1,10 +1,12 @@
 import { css, cx } from "@emotion/css";
-import { LogOut } from "lucide-react";
+import { LogOut, Trash2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { colorPalette } from "@/constants/colorPalette";
 import { typography } from "@/constants/typography";
 import { styles } from "@/constants/styles";
 import CustomPopover from "@/components/ui/CustomPopover";
+import { toast } from "sonner";
+import { useState } from "react";
 
 interface AvatarProps {
   email?: string;
@@ -113,7 +115,8 @@ const dropdownItemStyle = css`
 `;
 
 export const Avatar = ({ email, size = 32 }: AvatarProps) => {
-  const { user, logout } = useAuth();
+  const { user, logout, deleteAccount } = useAuth();
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const displayEmail = email || user?.email || "";
   const firstLetter = displayEmail.charAt(0).toUpperCase();
@@ -141,6 +144,33 @@ export const Avatar = ({ email, size = 32 }: AvatarProps) => {
 
   const handleLogout = async () => {
     await logout();
+  };
+
+  const handleDeleteAccount = async () => {
+    if (isDeleting) return;
+
+    toast.warning("Delete Account", {
+      description:
+        "This action cannot be undone. All your data will be permanently deleted.",
+      duration: 10000,
+      action: {
+        label: "Delete",
+        onClick: async () => {
+          setIsDeleting(true);
+          try {
+            await deleteAccount();
+          } finally {
+            setIsDeleting(false);
+          }
+        },
+      },
+      cancel: {
+        label: "Cancel",
+        onClick: () => {
+          toast.dismiss();
+        },
+      },
+    });
   };
 
   return (
@@ -176,10 +206,18 @@ export const Avatar = ({ email, size = 32 }: AvatarProps) => {
 
           <button
             className={cx(dropdownItemStyle, typography.textM)}
+            onClick={handleDeleteAccount}
+          >
+            <Trash2 size={16} />
+            <span>Delete account</span>
+          </button>
+
+          <button
+            className={cx(dropdownItemStyle, typography.textM)}
             onClick={handleLogout}
           >
             <LogOut size={16} />
-            <span>Wyloguj się</span>
+            <span>Sign out</span>
           </button>
         </div>
       }

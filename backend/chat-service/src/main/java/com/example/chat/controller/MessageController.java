@@ -9,9 +9,11 @@ import com.example.chat.service.AiService;
 import com.example.chat.service.ChatService;
 import com.example.chat.service.SseService;
 import com.example.chat.service.impl.MessageServiceImpl;
+import com.example.common.jwt.dto.UserPrincipal;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,29 +30,23 @@ public class MessageController {
 
     @GetMapping
     public ResponseEntity<List<MessageResponse>> getAllMessages(
-            @PathVariable("chatId") UUID chatId
+            @PathVariable("chatId") UUID chatId,
+            @AuthenticationPrincipal UserPrincipal user
     ) {
-        List<MessageResponse> messages = chatService.getAllMessagesInChat(chatId);
+        UUID userId = (user != null) ? user.id() : null;
+        List<MessageResponse> messages = chatService.getAllMessagesInChat(chatId,userId);
         return ResponseEntity.ok(messages);
     }
-
-//    @GetMapping("/{messageId}")
-//    public ResponseEntity<MessageResponse> getMessageById(
-//            @PathVariable("chatId") UUID chatId,
-//            @PathVariable("messageId") UUID messageId
-//    ) {
-//        MessageResponse message = messageService.getMessageById(chatId, messageId);
-//        return ResponseEntity.ok(message);
-//    }
-
-
 
     @PostMapping
     public ResponseEntity<CreateMessageResponse> createMessage(
             @PathVariable("chatId") UUID chatId,
-            @Valid @RequestBody CreateMessageRequest createMessageRequest
+            @Valid @RequestBody CreateMessageRequest createMessageRequest,
+            @AuthenticationPrincipal UserPrincipal user
     ) {
-        CreateMessageResponse created = messageService.createMessage(chatId, createMessageRequest);
+        UUID userId = (user != null) ? user.id() : null;
+
+        CreateMessageResponse created = messageService.createMessage(createMessageRequest, chatId,userId);
 
         // emit new user message to SSE subscribers
         sseService.emit(chatId, ChatEvent.USER_MESSAGE, created.content());
@@ -63,9 +59,12 @@ public class MessageController {
     @DeleteMapping("/{messageId}")
     public ResponseEntity<Void> deleteMessage(
             @PathVariable("chatId") UUID chatId,
-            @PathVariable("messageId") UUID messageId
+            @PathVariable("messageId") UUID messageId,
+            @AuthenticationPrincipal UserPrincipal user
     ) {
-        messageService.deleteMessage(chatId, messageId);
+        UUID userId = (user != null) ? user.id() : null;
+
+        messageService.deleteMessage(chatId, messageId,userId);
         return ResponseEntity.noContent().build();
     }
 }

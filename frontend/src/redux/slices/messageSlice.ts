@@ -3,6 +3,7 @@ import { chatApi } from "@/api/chatApi";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import exceptionWrapper from "@/utils/exceptionWrapper";
 import type { MessageResponse } from "@/types/message";
+import type { UUID } from "@/types/global";
 
 interface MessagesState {
   messages: MessageResponse[];
@@ -18,7 +19,7 @@ const initialState: MessagesState = {
 
 export const fetchMessagesAction = createAsyncThunk(
   "messages/fetchMessages",
-  async (chatId: string, { rejectWithValue }) => {
+  async (chatId: UUID, { rejectWithValue }) => {
     const response = await exceptionWrapper(async () => {
       return chatApi.getMessagesForChat(chatId);
     });
@@ -33,7 +34,7 @@ export const fetchMessagesAction = createAsyncThunk(
 export const postMessagesAction = createAsyncThunk(
   "messages/postMessage",
   async (
-    { chatId, content }: { chatId: string; content: string },
+    { chatId, content }: { chatId: UUID; content: string },
     { rejectWithValue }
   ) => {
     const response = await exceptionWrapper(async () => {
