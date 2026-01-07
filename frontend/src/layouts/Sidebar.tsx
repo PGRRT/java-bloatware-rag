@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { css } from "@emotion/css";
 import { Menu, TextAlignJustify, X } from "lucide-react";
@@ -10,6 +10,7 @@ import { navbarHeight } from "@/layouts/Navbar";
 import Logo from "@/components/ui/Logo";
 import ContentWrapper from "@/components/ui/ContentWrapper";
 import SidebarContent from "@/components/sidebar/SidebarContent";
+import { chatApi } from "@/api/chatApi";
 
 const buttonsStyle = css`
   display: flex;
@@ -36,6 +37,27 @@ export default function Sidebar() {
   const [expanded, setExpanded] = useState(false);
   const { isMobile } = useViewport();
   const sidebarWidth = expanded ? activeSidebarWidth : notActiveSidebarWidth;
+
+  useEffect(() => {
+    const a = async () => {
+      for (let i = 0; i < 30; i++) {
+        await new Promise((resolve) => {
+          setTimeout(async () => {
+            try {
+              const a = await chatApi.getChats();
+              console.log("chat fetch attempt", i, a);
+              
+            } catch (err) {
+              console.error(err);
+            } finally {
+              resolve(null);
+            }
+          }, 10);
+        });
+      }
+    };
+    a();
+  }, []);
 
   return (
     <div
@@ -159,12 +181,11 @@ export default function Sidebar() {
             `}
           `}
         >
-          <Logo  height={32} width={"fit-content"} />
+          <Logo height={32} width={"fit-content"} />
         </ContentWrapper>
       </div>
 
       <SidebarContent expanded={expanded} />
-     
     </div>
   );
 }

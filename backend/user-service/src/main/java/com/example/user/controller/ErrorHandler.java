@@ -24,7 +24,6 @@ public class ErrorHandler extends GlobalErrorHandler {
     })
     public ResponseEntity<ApiErrorResponse> handleAuthenticationExceptions(RuntimeException e) {
         // Authentication related exceptions - invalid tokens, user not found, token refresh issues
-        log.error("Authentication exception: {} - {}", e.getClass().getSimpleName(), e.getMessage(), e);
 
         ApiErrorResponse error = ApiErrorResponse.builder()
                 .status(HttpStatus.UNAUTHORIZED.value())
