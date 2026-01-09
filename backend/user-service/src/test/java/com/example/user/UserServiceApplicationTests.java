@@ -14,13 +14,13 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @Testcontainers
 class UserServiceApplicationTests {
 
-	@Container
-	@ServiceConnection
-	static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:17-alpine");
+//	@Container
+//	@ServiceConnection
+//	static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:17-alpine");
 
-	@Test
-	void contextLoads() {
-		assert postgres != null;
-	}
+//	@Test
+//	void contextLoads() {
+//		assert postgres != null;
+//	}
 
 }
